@@ -4,6 +4,7 @@ from .device import Device
 from .schedule import Schedule
 from .profile import BellProfile
 from .holiday import Holiday
+from .season import SeasonConfig  # Đảm bảo SeasonConfig được import sau School
 
 # Chỉ import Holiday khi cần sử dụng
 def get_holiday_model():

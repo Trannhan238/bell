@@ -11,14 +11,15 @@ def add_sample_schedules():
     app = create_app()
     with app.app_context():
         sample_schedules = [
-            {"bell_time": time(8, 0), "bell_type": "start_class", "day_of_week": 1, "profile_id": None},
-            {"bell_time": time(10, 0), "bell_type": "break_time", "day_of_week": 1, "profile_id": None},
-            {"bell_time": time(12, 0), "bell_type": "end_class", "day_of_week": 1, "profile_id": None},
+            {"start_time": time(8, 0), "end_time": time(9, 0), "bell_type": "start_class", "day_of_week": 1, "profile_id": None},
+            {"start_time": time(10, 0), "end_time": time(10, 15), "bell_type": "break_time", "day_of_week": 1, "profile_id": None},
+            {"start_time": time(12, 0), "end_time": time(13, 0), "bell_type": "end_class", "day_of_week": 1, "profile_id": None},
         ]
 
         for schedule_data in sample_schedules:
             schedule = Schedule(
-                bell_time=schedule_data["bell_time"],
+                start_time=schedule_data["start_time"],
+                end_time=schedule_data["end_time"],  # Added end_time
                 bell_type=schedule_data["bell_type"],
                 day_of_week=schedule_data["day_of_week"],
                 school_id=1,  # Ensure a valid school_id is provided

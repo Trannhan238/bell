@@ -17,6 +17,8 @@ def role_required(required_role):
         return wrapper
     return decorator
 
-# Ví dụ decorator sẵn để dùng
+# Định nghĩa admin_required
 admin_required = role_required("admin")
+
+# Ví dụ sử dụng:
 school_user_required = role_required("school_user")

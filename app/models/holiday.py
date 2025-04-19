@@ -1,7 +1,7 @@
 from app import db
 from datetime import date
 
-class Holiday(db.Model):  # Đảm bảo class này tồn tại và được định nghĩa đúng
+class Holiday(db.Model):
     __tablename__ = "holidays"
 
     id = db.Column(db.Integer, primary_key=True)

@@ -21,11 +21,20 @@ def valid_time_format(time_str):
 def create_schedule():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
-    if not user or user.role != 'school_user':
+
+    if not user:
+        return jsonify(message="User not found"), 404
+
+    if user.role != 'school_user':  # Kiểm tra vai trò người dùng
         return jsonify(message="Access denied"), 403
 
+    if not user.school_id:  # Kiểm tra người dùng có liên kết với trường học không
+        return jsonify(message="User is not assigned to any school"), 403
+
     data = request.get_json()
-    
+    if not data:
+        return jsonify(message="Invalid data"), 400
+
     # Kiểm tra dữ liệu đầu vào
     if 'start_time' not in data or not valid_time_format(data['start_time']):
         return jsonify(message="Invalid start time format. Expected format: HH:MM"), 400
@@ -52,7 +61,7 @@ def create_schedule():
     db.session.add(new_schedule)
     db.session.commit()
     
-    return jsonify(message="Schedule created", id=new_schedule.id), 201
+    return jsonify(message="Schedule created successfully", id=new_schedule.id), 201
 
 # API: Lấy danh sách lịch chuông
 @schedule_bp.route("/", methods=["GET"])
@@ -95,17 +104,19 @@ def update_schedule(schedule_id):
         return jsonify(message="Schedule not found or access denied"), 404
 
     data = request.get_json()
-    
+    if not data:
+        return jsonify(message="Invalid data"), 400
+
     # Kiểm tra và chuyển đổi các trường hợp lỗi hoặc thay đổi
     if 'start_time' in data:
         if not valid_time_format(data['start_time']):
             return jsonify(message="Invalid start time format. Expected format: HH:MM"), 400
-        schedule.start_time = datetime.strptime(data['start_time'], "%H:%M").time()  # Convert to time object
+        schedule.start_time = datetime.strptime(data['start_time'], "%H:%M").time()
 
     if 'end_time' in data:
         if not valid_time_format(data['end_time']):
             return jsonify(message="Invalid end time format. Expected format: HH:MM"), 400
-        schedule.end_time = datetime.strptime(data['end_time'], "%H:%M").time()  # Convert to time object
+        schedule.end_time = datetime.strptime(data['end_time'], "%H:%M").time()
 
     if 'day_of_week' in data:
         if not isinstance(data['day_of_week'], int) or not (0 <= data['day_of_week'] <= 6):
@@ -121,7 +132,7 @@ def update_schedule(schedule_id):
         schedule.is_summer = data['is_summer']
 
     db.session.commit()
-    
+
     return jsonify(message="Schedule updated")
 
 # API: Xóa lịch chuông
