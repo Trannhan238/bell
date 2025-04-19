@@ -13,7 +13,7 @@ def login():
     
     user = User.query.filter_by(username=username).first()
     if user and user.check_password(password):
-        # Tạo JWT token
-        access_token = create_access_token(identity=user.id)
+        # Tạo JWT token với identity là chuỗi
+        access_token = create_access_token(identity=str(user.id))
         return jsonify(access_token=access_token), 200
     return jsonify(message="Invalid credentials"), 401

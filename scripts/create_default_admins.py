@@ -1,5 +1,9 @@
 # scripts/create_default_admins.py
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from app import create_app, db
 from app.models.user import User
 from app.models.school import School
@@ -7,6 +11,9 @@ from app.models.school import School
 def create_default_users():
     app = create_app()
     with app.app_context():
+        # Tạo cơ sở dữ liệu nếu chưa tồn tại
+        db.create_all()
+
         users = [
             {"username": "admin", "role": "admin"},
             {"username": "ad1", "role": "school_user"},

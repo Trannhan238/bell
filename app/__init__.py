@@ -1,9 +1,11 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate  # Import Flask-Migrate
 
 db = SQLAlchemy()
 jwt = JWTManager()
+migrate = Migrate()  # Initialize Flask-Migrate
 
 def create_app():
     app = Flask(__name__)
@@ -11,14 +13,10 @@ def create_app():
     
     db.init_app(app)
     jwt.init_app(app)
+    migrate.init_app(app, db)  # Bind Flask-Migrate to the app and db
     
     # Đăng ký Blueprint
-    from app.routes import auth, user, school, device, schedule, admin
-    app.register_blueprint(auth.bp)
-    app.register_blueprint(user.bp)
-    app.register_blueprint(school.bp)
-    app.register_blueprint(device.bp)
-    app.register_blueprint(schedule.bp)
-    app.register_blueprint(admin.bp)
+    from app.routes import register_routes
+    register_routes(app)
     
     return app

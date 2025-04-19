@@ -10,5 +10,4 @@ class School(db.Model):
 
     users = db.relationship("User", backref="school", lazy=True)
     devices = db.relationship("Device", backref="school", lazy=True)
-    schedules = db.relationship("Schedule", backref="school", lazy=True)
     disabled_periods = db.relationship("DisabledPeriod", backref="school", lazy=True)

@@ -1,14 +1,18 @@
 from .auth import auth_bp
-from .user import user_bp
+from .user_routes import user_bp  # Đổi từ user thành user_routes
 from .school import school_bp
 from .device import device_bp
-from .schedule import schedule_bp
+from .schedule_routes import schedule_bp  # Updated to match the correct file name
 from .admin import admin_bp
 
 def register_routes(app):
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
-    app.register_blueprint(user_bp, url_prefix="/api/user")
+    app.register_blueprint(user_bp, url_prefix="/api/user")  # Đảm bảo sử dụng user_bp từ user_routes
     app.register_blueprint(school_bp, url_prefix="/api/school")
     app.register_blueprint(device_bp, url_prefix="/api/device")
     app.register_blueprint(schedule_bp, url_prefix="/api/schedule")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
+
+    @app.route("/")
+    def index():
+        return "Welcome to the School Bell API", 200
