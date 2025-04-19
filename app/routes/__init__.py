@@ -4,6 +4,9 @@ from .school import school_bp
 from .device import device_bp
 from .schedule_routes import schedule_bp  # Updated to match the correct file name
 from .admin import admin_bp
+from .holiday import holiday_bp  # Đảm bảo dòng này tồn tại và không bị lỗi
+from .schedule_helper import schedule_helper_bp  # Đảm bảo dòng này tồn tại và không bị lỗi
+
 
 def register_routes(app):
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
@@ -12,6 +15,8 @@ def register_routes(app):
     app.register_blueprint(device_bp, url_prefix="/api/device")
     app.register_blueprint(schedule_bp, url_prefix="/api/schedule")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
+    app.register_blueprint(holiday_bp)
+    app.register_blueprint(schedule_helper_bp, url_prefix="/api/schedule-helper")
 
     @app.route("/")
     def index():

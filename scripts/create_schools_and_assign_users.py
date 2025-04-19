@@ -35,9 +35,12 @@ def create_schools_and_assign_users():
             # Gán user vào trường
             user = User.query.filter_by(username=usernames[i]).first()
             if user:
-                user.school_id = school.id
-                db.session.commit()
-                print(f"Assigned {user.username} to {school.name}")
+                if user.school_id != school.id:  # Chỉ cập nhật nếu cần thiết
+                    user.school_id = school.id
+                    db.session.commit()
+                    print(f"Assigned {user.username} to {school.name}")
+                else:
+                    print(f"User {user.username} is already assigned to {school.name}")
             else:
                 print(f"User {usernames[i]} not found!")
 

@@ -32,7 +32,8 @@ def create_default_users():
                 db.session.add(user)
                 print(f"Created user {u['username']} with role {u['role']}")
             else:
-                print(f"User {u['username']} already exists.")
+                existing_user = User.query.filter_by(username=u["username"]).first()
+                print(f"User {existing_user.username} already exists with role {existing_user.role}.")
 
         db.session.commit()
         print("Done.")
