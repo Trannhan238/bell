@@ -1,0 +1,34 @@
+# scripts/create_default_admins.py
+
+from app import create_app, db
+from app.models.user import User
+from app.models.school import School
+
+def create_default_users():
+    app = create_app()
+    with app.app_context():
+        users = [
+            {"username": "admin", "role": "admin"},
+            {"username": "ad1", "role": "school_user"},
+            {"username": "ad2", "role": "school_user"},
+            {"username": "ad3", "role": "school_user"},
+        ]
+        
+        for u in users:
+            if not User.query.filter_by(username=u["username"]).first():
+                user = User(
+                    username=u["username"],
+                    role=u["role"],
+                    full_name=u["username"].upper()
+                )
+                user.set_password("123")
+                db.session.add(user)
+                print(f"Created user {u['username']} with role {u['role']}")
+            else:
+                print(f"User {u['username']} already exists.")
+
+        db.session.commit()
+        print("Done.")
+
+if __name__ == "__main__":
+    create_default_users()

@@ -1,0 +1,1 @@
+# This file is intentionally left blank for initializing schemas using Marshmallow.
