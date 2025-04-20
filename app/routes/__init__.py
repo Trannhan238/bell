@@ -15,7 +15,7 @@ def register_routes(app):
     app.register_blueprint(device_bp, url_prefix="/api/device")
     app.register_blueprint(schedule_bp, url_prefix="/api/schedule")
     app.register_blueprint(admin_bp, url_prefix="/api/admin")
-    app.register_blueprint(holiday_bp)
+    app.register_blueprint(holiday_bp, url_prefix="/api/holiday")
     app.register_blueprint(schedule_helper_bp, url_prefix="/api/schedule-helper")
     app.register_blueprint(season_bp, url_prefix="/api/season")
 

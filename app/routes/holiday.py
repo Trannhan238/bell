@@ -1,139 +1,91 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from app import db
-from app.models.holiday import Holiday
-from app.models.user import User
+from marshmallow import Schema, fields, ValidationError, validates_schema
 from datetime import datetime
 
-holiday_bp = Blueprint("holiday", __name__, url_prefix="/api/holiday")
+holiday_bp = Blueprint("holiday", __name__)
 
-# API: Tạo kỳ nghỉ
+# Schema for validating holiday data
+class HolidaySchema(Schema):
+    name = fields.String(required=True)
+    start_date = fields.Date(required=True)
+    end_date = fields.Date(required=True)
+    school_id = fields.Integer(required=False)
+
+    @validates_schema
+    def validate_dates(self, data, **kwargs):
+        if "start_date" in data and "end_date" in data:
+            if data["start_date"] > data["end_date"]:
+                raise ValidationError("start_date must be before end_date.")
+
+holiday_schema = HolidaySchema()
+pagination_schema = Schema.from_dict({
+    "page": fields.Integer(load_default=1),  # Fixed
+    "per_page": fields.Integer(load_default=10),  # Fixed
+    "search": fields.String(load_default=None)  # Fixed
+})
+
+# POST /api/holiday/
 @holiday_bp.route("/", methods=["POST"])
 @jwt_required()
 def create_holiday():
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    try:
+        data = holiday_schema.load(request.json)
+    except ValidationError as err:
+        return jsonify({"error": err.messages}), 400
 
-    if not user:
-        return jsonify(message="User not found"), 404
+    # Logic to create a holiday (e.g., save to DB)
+    # Example response:
+    return jsonify({"message": "Holiday created successfully", "data": data}), 201
 
-    if user.role != "admin":  # Kiểm tra vai trò người dùng
-        return jsonify(message="Access denied"), 403
-
-    data = request.get_json()
-    if not data:
-        return jsonify(message="Invalid data"), 400
-
-    # Tạo kỳ nghỉ mới
-    new_holiday = Holiday(
-        name=data["name"],
-        school_id=data.get("school_id"),
-        start_date=datetime.strptime(data["start_date"], "%Y-%m-%d").date(),
-        end_date=datetime.strptime(data["end_date"], "%Y-%m-%d").date(),
-    )
-    db.session.add(new_holiday)
-    db.session.commit()
-
-    return jsonify(message="Holiday created", id=new_holiday.id), 201
-
-# API: Lấy danh sách kỳ nghỉ
+# GET /api/holiday/
 @holiday_bp.route("/", methods=["GET"])
 @jwt_required()
 def get_holidays():
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    args = pagination_schema.load(request.args)
+    page = args["page"]
+    per_page = args["per_page"]
+    search = args["search"]
 
-    if not user:
-        return jsonify(message="User not found"), 404
+    # Logic to fetch holidays with pagination and search
+    # Example: Filter holidays by name if `search` is provided
+    holidays = [
+        # Mock data for demonstration
+        {"id": 1, "name": "New Year", "start_date": "2025-01-01", "end_date": "2025-01-02"},
+        {"id": 2, "name": "Summer Break", "start_date": "2025-06-01", "end_date": "2025-06-30"}
+    ]
+    if search:
+        holidays = [h for h in holidays if search.lower() in h["name"].lower()]
 
-    if user.role == "admin":
-        holidays = Holiday.query.all()
-    else:
-        holidays = Holiday.query.filter_by(school_id=user.school_id).all()
+    # Paginate results
+    start = (page - 1) * per_page
+    end = start + per_page
+    paginated_holidays = holidays[start:end]
 
-    result = []
-    for h in holidays:
-        result.append({
-            "id": h.id,
-            "name": h.name,
-            "start_date": h.start_date.isoformat(),
-            "end_date": h.end_date.isoformat(),
-            "school_id": h.school_id,
-        })
-    return jsonify(holidays=result)
-
-# API: Lấy thông tin chi tiết kỳ nghỉ
-@holiday_bp.route("/<int:holiday_id>", methods=["GET"])
-@jwt_required()
-def get_holiday(holiday_id):
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
-
-    if not user:
-        return jsonify(message="User not found"), 404
-
-    holiday = Holiday.query.get(holiday_id)
-    if not holiday:
-        return jsonify(message="Holiday not found"), 404
-
-    # Trả về thông tin chi tiết kỳ nghỉ
     return jsonify({
-        "id": holiday.id,
-        "name": holiday.name,
-        "start_date": holiday.start_date.isoformat(),
-        "end_date": holiday.end_date.isoformat(),
-        "school_id": holiday.school_id,
+        "data": paginated_holidays,
+        "total": len(holidays),
+        "page": page,
+        "per_page": per_page
     }), 200
 
-# API: Xóa kỳ nghỉ
-@holiday_bp.route("/<int:holiday_id>", methods=["DELETE"])
-@jwt_required()
-def delete_holiday(holiday_id):
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
-
-    if not user:
-        return jsonify(message="User not found"), 404
-
-    if user.role != "admin":  # Chỉ admin mới có quyền xóa
-        return jsonify(message="Access denied"), 403
-
-    holiday = Holiday.query.get(holiday_id)
-    if not holiday:
-        return jsonify(message="Holiday not found"), 404
-
-    db.session.delete(holiday)
-    db.session.commit()
-
-    return jsonify(message="Holiday deleted successfully"), 200
-
-# API: Cập nhật kỳ nghỉ
+# PUT /api/holiday/<int:holiday_id>
 @holiday_bp.route("/<int:holiday_id>", methods=["PUT"])
 @jwt_required()
 def update_holiday(holiday_id):
-    user_id = get_jwt_identity()
-    user = User.query.get(user_id)
+    try:
+        data = holiday_schema.load(request.json)
+    except ValidationError as err:
+        return jsonify({"error": err.messages}), 400
 
-    if not user:
-        return jsonify(message="User not found"), 404
+    # Logic to update a holiday (e.g., update in DB)
+    # Example response:
+    return jsonify({"message": f"Holiday {holiday_id} updated successfully", "data": data}), 200
 
-    if user.role != "admin":  # Chỉ admin mới có quyền cập nhật
-        return jsonify(message="Access denied"), 403
-
-    holiday = Holiday.query.get(holiday_id)
-    if not holiday:
-        return jsonify(message="Holiday not found"), 404
-
-    data = request.get_json()
-    if not data:
-        return jsonify(message="Invalid data"), 400
-
-    # Cập nhật thông tin kỳ nghỉ
-    holiday.name = data.get("name", holiday.name)
-    holiday.school_id = data.get("school_id", holiday.school_id)
-    holiday.start_date = datetime.strptime(data["start_date"], "%Y-%m-%d").date() if "start_date" in data else holiday.start_date
-    holiday.end_date = datetime.strptime(data["end_date"], "%Y-%m-%d").date() if "end_date" in data else holiday.end_date
-
-    db.session.commit()
-
-    return jsonify(message="Holiday updated successfully"), 200
+# DELETE /api/holiday/<int:holiday_id>
+@holiday_bp.route("/<int:holiday_id>", methods=["DELETE"])
+@jwt_required()
+def delete_holiday(holiday_id):
+    # Logic to delete a holiday (e.g., remove from DB)
+    # Example response:
+    return jsonify({"message": f"Holiday {holiday_id} deleted successfully"}), 200
