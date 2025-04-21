@@ -12,6 +12,17 @@ class Holiday(db.Model):
 
     school = db.relationship("School", backref="holidays")  # Không xung đột với DisabledPeriod
 
+    @staticmethod
+    def is_overlapping(school_id, start_date, end_date, exclude_id=None):
+        query = Holiday.query.filter(
+            Holiday.school_id == school_id,
+            Holiday.start_date <= end_date,
+            Holiday.end_date >= start_date
+        )
+        if exclude_id:
+            query = query.filter(Holiday.id != exclude_id)
+        return query.first() is not None
+
 class DisabledPeriod(db.Model):  # Định nghĩa DisabledPeriod nếu cần
     __tablename__ = "disabled_periods"
 
