@@ -1,0 +1,167 @@
+@school_token = 
+@admin_token = 
+### 🔐 Login admin
+POST http://127.0.0.1:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "123"
+}
+
+###
+
+### 🔐 Login school user
+POST http://127.0.0.1:5000/api/auth/login
+Content-Type: application/json
+
+{
+  "username": "ad1",
+  "password": "123"
+}
+
+###
+
+### 👤 Lấy thông tin người dùng
+GET http://127.0.0.1:5000/api/user/me
+Authorization: Bearer {{school_token}}
+
+###
+
+### 🏫 Lấy danh sách trường học
+GET http://127.0.0.1:5000/api/school/
+Authorization: Bearer {{admin_token}}
+
+###
+
+### 📟 Tạo thiết bị mới
+POST http://127.0.0.1:5000/api/device/create
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "name": "ESP32-KhuA",
+  "school_id": 1,
+  "mac_address": "AA:BB:CC:DD:EE:01"
+}
+
+###
+
+### 📟 Danh sách thiết bị
+GET http://127.0.0.1:5000/api/device/list
+Authorization: Bearer {{admin_token}}
+
+###
+
+### 🕰️ Danh sách lịch chuông
+GET http://127.0.0.1:5000/api/schedule/
+Authorization: Bearer {{school_token}}
+
+###
+
+### ➕ Tạo lịch chuông
+POST http://127.0.0.1:5000/api/schedule/
+Content-Type: application/json
+Authorization: Bearer {{school_token}}
+
+{
+  "day_of_week": 2,
+  "start_time": "10:00",
+  "end_time": "10:15",
+  "bell_type": "Ra chơi",
+  "is_summer": false
+}
+
+###
+
+### 📝 Sửa lịch chuông
+PUT http://127.0.0.1:5000/api/schedule/1
+Content-Type: application/json
+Authorization: Bearer {{school_token}}
+
+{
+  "day_of_week": 1,
+  "start_time": "10:20",
+  "end_time": "10:35",
+  "bell_type": "Điểm tiết",
+  "is_summer": false
+}
+
+###
+
+### ❌ Xoá lịch chuông
+DELETE http://127.0.0.1:5000/api/schedule/1
+Authorization: Bearer {{school_token}}
+
+###
+
+### 📅 Tạo ngày nghỉ
+POST http://127.0.0.1:5000/api/holiday/
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "name": "Giỗ tổ Hùng Vương",
+  "date": "2025-04-18"
+}
+
+###
+
+### 📅 Danh sách ngày nghỉ
+GET http://127.0.0.1:5000/api/holiday/
+Authorization: Bearer {{admin_token}}
+
+###
+
+### 📅 Cập nhật ngày nghỉ
+PUT http://127.0.0.1:5000/api/holiday/1
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "name": "Giỗ tổ (updated)",
+  "date": "2025-04-19"
+}
+
+###
+
+### ❌ Xoá ngày nghỉ
+DELETE http://127.0.0.1:5000/api/holiday/1
+Authorization: Bearer {{admin_token}}
+
+###
+
+### 🌦️ Lấy cấu hình mùa hè
+GET http://127.0.0.1:5000/api/season/config
+Authorization: Bearer {{admin_token}}
+
+###
+
+### 🛠️ Tạo/cập nhật cấu hình mùa hè
+PUT http://127.0.0.1:5000/api/season/
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "school_id": 1,
+  "summer_start": "2025-04-01",
+  "summer_end": "2025-09-30"
+}
+
+###
+
+### 🕵️‍♂️ Check hôm nay có phải ngày nghỉ không?
+GET http://127.0.0.1:5000/api/schedule-helper/is_holiday
+Authorization: Bearer {{school_token}}
+
+###
+
+### 📆 Lấy lịch hôm nay
+GET http://127.0.0.1:5000/api/schedule-helper/today
+Authorization: Bearer {{school_token}}
+
+###
+
+### 📊 Thống kê hệ thống (admin)
+GET http://127.0.0.1:5000/api/admin/stats
+Authorization: Bearer {{admin_token}}

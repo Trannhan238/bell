@@ -7,6 +7,7 @@ from datetime import datetime
 
 schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
 
+# API tạo lịch chuông
 @schedule_bp.route("/create", methods=["POST"])
 @jwt_required()
 def create_schedule():
@@ -47,6 +48,64 @@ def create_schedule():
     db.session.commit()
 
     return jsonify(message="Schedule created successfully", id=new_schedule.id), 201
+
+# API: Cập nhật lịch chuông
+@schedule_bp.route("/<int:schedule_id>", methods=["PUT"])
+@jwt_required()
+def update_schedule(schedule_id):
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user or not user.school:
+        return jsonify(message="User or School not found"), 404
+
+    schedule = Schedule.query.filter_by(id=schedule_id, school_id=user.school.id).first()
+    if not schedule:
+        return jsonify(message="Schedule not found or not belonging to your school"), 404
+
+    data = request.get_json()
+    if not data:
+        return jsonify(message="Invalid data"), 400
+
+    # Cập nhật các trường nếu có trong dữ liệu đầu vào
+    if "start_time" in data:
+        try:
+            schedule.start_time = datetime.strptime(data["start_time"], "%H:%M").time()
+        except ValueError:
+            return jsonify(message="Invalid start time format. Expected HH:MM"), 400
+
+    if "end_time" in data:
+        try:
+            schedule.end_time = datetime.strptime(data["end_time"], "%H:%M").time()
+        except ValueError:
+            return jsonify(message="Invalid end time format. Expected HH:MM"), 400
+
+    if "bell_type" in data:
+        schedule.bell_type = data["bell_type"]
+
+    if "day_of_week" in data:
+        if not isinstance(data["day_of_week"], int) or not (0 <= data["day_of_week"] <= 6):
+            return jsonify(message="Invalid day_of_week. Should be an integer between 0 and 6"), 400
+        schedule.day_of_week = data["day_of_week"]
+
+    db.session.commit()
+    return jsonify(message="Schedule updated successfully"), 200
+
+# API: Xóa lịch chuông
+@schedule_bp.route("/<int:schedule_id>", methods=["DELETE"])
+@jwt_required()
+def delete_schedule(schedule_id):
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user or not user.school:
+        return jsonify(message="User or School not found"), 404
+
+    schedule = Schedule.query.filter_by(id=schedule_id, school_id=user.school.id).first()
+    if not schedule:
+        return jsonify(message="Schedule not found or not belonging to your school"), 404
+
+    db.session.delete(schedule)
+    db.session.commit()
+    return jsonify(message="Schedule deleted successfully"), 200
 
 @schedule_bp.route("/list", methods=["GET"])
 @jwt_required()
