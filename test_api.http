@@ -1,5 +1,5 @@
-@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTI5MDIxMiwianRpIjoiYWI0MjFmNzgtNzIzZC00YmQxLTgyYTgtMzA3MjEwOGIxNjRkIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUyOTAyMTIsImV4cCI6MTc0NTI5NzQxMn0.yO_3qpb0hSNAGq5ysM2ZUKsKbLafma0F0Fnmy_FGP8g
-@school_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTI5MDIyOCwianRpIjoiMWRlNjBhYmItZjYzMS00MmQxLTliOTQtZGYzN2E1NDNmNjY0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NDUyOTAyMjgsImV4cCI6MTc0NTI5NzQyOH0.OP9D_GyelVAssg6UMI-v1cVXXbZc3u2dGA3EJC8OiVs
+@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTMyMjMwOSwianRpIjoiZGEzMjdkMmUtMGUwZC00NzdmLTlhOGItZjM4OGY3ZmE3Y2IzIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUzMjIzMDksImV4cCI6MTc0NTMyOTUwOX0.WLLUjrYCgaD8AIOLL54heFfZyrQNsRSZDjMTpgY8OrU
+@school_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTMyMjMyNiwianRpIjoiOTQ2NjNlYTgtZjNkZS00MTEyLTllYjEtNDU2N2Y4ZWRkZGZkIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NDUzMjIzMjYsImV4cCI6MTc0NTMyOTUyNn0.uUrnpqcUF2OtIBX4UjfShk8fG8G70K3cNhpJv6rwymg
 
 ### 🔐 Login admin
 POST http://127.0.0.1:5000/api/auth/login
@@ -137,22 +137,22 @@ Authorization: Bearer {{admin_token}}
 ###
 
 ### 🌦️ Lấy cấu hình mùa hè admin //
-GET http://127.0.0.1:5000/api/season/config
+GET http://127.0.0.1:5000/api/season/config?school_id=1
 Authorization: Bearer {{admin_token}}
 
 ### 🌦️ Lấy cấu hình mùa hè trường
-GET http://127.0.0.1:5000/api/season/config
+GET http://127.0.0.1:5000/api/season/config?school_id=1
 Authorization: Bearer {{school_token}}
 
 ###
 
-### 🛠️ Tạo/cập nhật cấu hình mùa hè
-PUT http://127.0.0.1:5000/api/season/config/
+### 🛠️ Tạo cấu hình mùa hè
+PUT  http://127.0.0.1:5000/api/season/config/?school_id=1
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
 {
-  "school_id": 2,
+  "school_id": 1,
   "summer_start": "2025-06-01",
   "summer_end": "2025-09-30"
 }
@@ -160,7 +160,7 @@ Authorization: Bearer {{admin_token}}
 ###
 
 ### 🕵️‍♂️ Check hôm nay có phải ngày nghỉ không?
-GET http://127.0.0.1:5000/api/schedule-helper/is_holiday
+GET http://127.0.0.1:5000/api/schedule-helper/is_holiday?device_id=2
 Authorization: Bearer {{school_token}}
 
 ###

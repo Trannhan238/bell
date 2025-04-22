@@ -41,7 +41,7 @@ def get_season_config():
 def update_season_config():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
-    # Cho phép admin hệ thống và admin trường
+    # Chỉ cho phép admin hệ thống và admin trường
     if not user or user.role not in ["admin", "school_admin"]:
         return jsonify(message="Access denied"), 403
 
@@ -56,6 +56,9 @@ def update_season_config():
         summer_end = date.fromisoformat(summer_end)
     except ValueError:
         return jsonify(message="Invalid date format. Use YYYY-MM-DD."), 400
+
+    if summer_start >= summer_end:
+        return jsonify(message="summer_start must be before summer_end"), 400
 
     if user.role == "school_admin":
         school_id = user.school_id
@@ -80,8 +83,12 @@ def update_season_config():
         db.session.add(season)
         message = "Season config created successfully"
 
-    db.session.commit()
-    return jsonify(message=message), 200
+    try:
+        db.session.commit()
+        return jsonify(message=message), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify(message="An unexpected error occurred", error=str(e)), 500
 
 @season_bp.route("/<int:season_id>", methods=["DELETE"], endpoint='delete_season_config')
 @jwt_required()
