@@ -11,9 +11,17 @@ def create_device():
     data = request.get_json()
     name = data.get("name")
     ip_address = data.get("ip_address")
+    mac_address = data.get("mac_address")
     user_id = data.get("user_id")
+    school_id = data.get("school_id")
     
-    new_device = Device(name=name, ip_address=ip_address, user_id=user_id)
+    new_device = Device(
+        name=name,
+        ip_address=ip_address,
+        mac_address=mac_address,
+        user_id=user_id,
+        school_id=school_id
+    )
     db.session.add(new_device)
     db.session.commit()
     
