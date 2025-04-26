@@ -1,5 +1,5 @@
-@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTMyMjMwOSwianRpIjoiZGEzMjdkMmUtMGUwZC00NzdmLTlhOGItZjM4OGY3ZmE3Y2IzIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDUzMjIzMDksImV4cCI6MTc0NTMyOTUwOX0.WLLUjrYCgaD8AIOLL54heFfZyrQNsRSZDjMTpgY8OrU
-@school_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTMyMjMyNiwianRpIjoiOTQ2NjNlYTgtZjNkZS00MTEyLTllYjEtNDU2N2Y4ZWRkZGZkIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NDUzMjIzMjYsImV4cCI6MTc0NTMyOTUyNn0.uUrnpqcUF2OtIBX4UjfShk8fG8G70K3cNhpJv6rwymg
+@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTYzOTE1OSwianRpIjoiMTc1MzdjYmEtMGNiYS00OGM4LWFkMDYtYmI0NDNjNzg2OWUwIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDU2MzkxNTksImV4cCI6MTc0NTY0NjM1OX0.5S8yBKmGI-i818U6IhoDGtxP3c4mv54s4mQsSFl7KAY
+@school_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTYzOTE3OSwianRpIjoiYjhhYjdjMmUtNWU0Ny00ZTc2LTliZTEtYzc4Y2I2ZTRkYmY3IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NDU2MzkxNzksImV4cCI6MTc0NTY0NjM3OX0.n6d4jPCGAXe7bJn-zHJ-vE8yHoY_ZQNJtnFxqv6h3t4
 
 ### 🔐 Login admin
 POST http://127.0.0.1:5000/api/auth/login
@@ -46,6 +46,46 @@ Authorization: Bearer {{admin_token}}
   "mac_address": "00:1A:2B:3C:4D:5A",
   "school_id": 4,
   "user_id": 4
+}
+
+###
+
+### 📟 Lấy thông tin chi tiết thiết bị
+GET http://127.0.0.1:5000/api/device/1
+Authorization: Bearer {{admin_token}}
+
+###
+
+### 📟 Danh sách thiết bị chưa được gán
+GET http://127.0.0.1:5000/api/device/unassigned
+Authorization: Bearer {{admin_token}}
+
+###
+
+### 📟 Gán thiết bị cho trường và người dùng
+POST http://127.0.0.1:5000/api/device/assign
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "device_id": 1,
+  "name": "ESP32-KhuA-Updated",
+  "school_id": 2,
+  "user_id": 2,
+  "active": true
+}
+
+###
+
+### 📟 Cập nhật thông tin thiết bị
+POST http://127.0.0.1:5000/api/device/update
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "device_id": 1,
+  "name": "ESP32-KhuA-New",
+  "active": true
 }
 
 ###

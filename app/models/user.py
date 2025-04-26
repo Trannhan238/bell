@@ -13,7 +13,9 @@ class User(db.Model):
 
     school_id = db.Column(db.Integer, db.ForeignKey("schools.id"), nullable=True)
 
-    devices = db.relationship("Device", backref="user", lazy=True)
+    # Thay thế backref bằng back_populates
+    devices = db.relationship("Device", back_populates="user", lazy=True)
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
 

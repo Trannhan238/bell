@@ -9,9 +9,9 @@ class School(db.Model):
     phone = db.Column(db.String(20))
 
     users = db.relationship("User", backref="school", lazy=True)
-    devices = db.relationship("Device", backref="school", lazy=True)
+    devices = db.relationship("Device", back_populates="school", lazy=True)
     disabled_periods = db.relationship(
         "DisabledPeriod",
-        back_populates="school",  # Sử dụng back_populates thay vì backref
+        back_populates="school",
         lazy=True
     )
