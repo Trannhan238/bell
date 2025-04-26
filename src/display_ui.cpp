@@ -1,0 +1,1 @@
+// vẽ giờ + trạng thái lên OLED
