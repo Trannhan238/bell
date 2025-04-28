@@ -1,0 +1,49 @@
+//========================================
+// API TESTING CHO THIẾT BỊ ESP32
+//========================================
+
+### 📡 Đăng ký thiết bị ESP32 mới
+POST http://127.0.0.1:5000/api/device/register
+Content-Type: application/json
+
+{
+  "mac_address": "00:1A:2B:3C:4D:5A"
+}
+
+### 🔑 Xác thực thiết bị ESP32 và lấy token
+POST http://127.0.0.1:5000/api/device/authenticate
+Content-Type: application/json
+
+{
+  "mac_address": "94:54:C5:E9:1C:B4"
+}
+
+### 🔄 Lưu token thiết bị nhận được (thay thế giá trị sau khi xác thực)
+@device_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTgwNzMzOCwianRpIjoiYmQ1YThjODUtZmVkZC00YmQ3LThiYjAtYjZkNDQyMWI4YTEyIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjY6OTQ6NTQ6QzU6RTk6MUM6QjQiLCJuYmYiOjE3NDU4MDczMzgsImV4cCI6MTc0ODM5OTMzOH0.OwOEqDvbYQbiOiTd38S0QaJntcm6xGVwkVrtyif5K90
+
+### 📆 Lấy lịch chuông hôm nay cho thiết bị
+GET http://127.0.0.1:5000/api/device/schedule/today
+Authorization: Bearer {{device_token}}
+
+### 🏫 Kiểm tra hôm nay có phải ngày nghỉ không
+GET http://127.0.0.1:5000/api/schedule-helper/is_holiday?device_id=1
+
+### 📡 Kiểm tra trạng thái kết nối thiết bị (heartbeat)
+POST http://127.0.0.1:5000/api/device/heartbeat
+Content-Type: application/json
+Authorization: Bearer {{device_token}}
+
+{
+  "status": "online",
+  "temperature": 30.5,
+  "humidity": 65.2
+}
+
+### 🔄 Thiết lập lại thiết bị (reset)
+POST http://127.0.0.1:5000/api/device/reset
+Content-Type: application/json
+Authorization: Bearer {{device_token}}
+
+{
+  "reason": "test_restart"
+}

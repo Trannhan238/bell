@@ -87,6 +87,8 @@ def register_device():
             "device_id": new_device.id
         }), 201
 
+import json
+
 @device_bp.route("/authenticate", methods=["POST"])
 def authenticate_device():
     """Endpoint for ESP32 to authenticate and get JWT token"""
@@ -109,9 +111,11 @@ def authenticate_device():
     device.last_seen = datetime.utcnow()
     db.session.commit()
     
-    # Tạo JWT token cho thiết bị (thời hạn dài hơn cho thiết bị)
+    # Tạo JWT token với identity là chuỗi
+    identity = f"{device.id}:{mac_address}"
+    
     token = create_access_token(
-        identity={"device_id": device.id, "mac": mac_address},
+        identity=identity,
         expires_delta=timedelta(days=30)
     )
     
@@ -206,3 +210,75 @@ def get_device_details():
         result.append(device_data)
     
     return jsonify(result), 200
+
+@device_bp.route("/schedule/today", methods=["GET"])
+@jwt_required()
+def get_device_schedule():
+    """Endpoint cho ESP32 lấy lịch chuông của ngày hôm nay"""
+    # Lấy thông tin từ JWT token
+    identity = get_jwt_identity()
+    
+    # Phân tích identity từ chuỗi
+    try:
+        device_id = int(identity.split(":")[0])
+    except (ValueError, AttributeError, IndexError):
+        return jsonify(message="Invalid device identity"), 403
+    
+    # Lấy thông tin thiết bị
+    device = Device.query.get(device_id)
+    if not device or not device.active:
+        return jsonify(message="Device not found or inactive"), 404
+    
+    if not device.school_id:
+        return jsonify(message="Device not assigned to any school"), 403
+    
+    from app.models.holiday import Holiday
+    from app.models.schedule import Schedule
+    from app.models.season import SeasonConfig
+    from datetime import date
+    
+    today = date.today()
+    weekday = today.weekday()  # Monday is 0, Sunday is 6
+    
+    # Kiểm tra nếu hôm nay là ngày nghỉ
+    holiday = Holiday.query.filter(
+        ((Holiday.school_id == None) | (Holiday.school_id == device.school_id)),
+        (Holiday.start_date <= today),
+        (Holiday.end_date >= today)
+    ).first()
+    
+    if holiday:
+        return jsonify(message="Today is a holiday", schedules=[])
+    
+    # Tự động xác định mùa
+    season = SeasonConfig.query.filter_by(school_id=device.school_id).first()
+    if not season:
+        return jsonify(message="Missing season config", schedules=[]), 400
+    
+    is_summer = False
+    if season.summer_start and season.summer_end:
+        is_summer = season.summer_start <= today <= season.summer_end
+    
+    # Lấy lịch chuông
+    schedules = Schedule.query.filter_by(
+        school_id=device.school_id,
+        day_of_week=weekday,
+        is_summer=is_summer
+    ).all()
+    
+    schedules_data = []
+    for schedule in schedules:
+        schedules_data.append({
+            "id": schedule.id,
+            "start_time": schedule.start_time.strftime('%H:%M'),
+            "end_time": schedule.end_time.strftime('%H:%M') if schedule.end_time else None,
+            "bell_type": schedule.bell_type
+        })
+    
+    # Đảm bảo hàm luôn có return statement
+    return jsonify({
+        "message": "Today's schedules",
+        "date": today.strftime('%Y-%m-%d'),
+        "is_summer": is_summer,
+        "schedules": schedules_data
+    })
