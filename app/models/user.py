@@ -12,9 +12,10 @@ class User(db.Model):
     full_name = db.Column(db.String(100))
 
     school_id = db.Column(db.Integer, db.ForeignKey("schools.id"), nullable=True)
-
-    # Thay thế backref bằng back_populates
-    devices = db.relationship("Device", back_populates="user", lazy=True)
+    
+    # Cập nhật các mối quan hệ này để thống nhất
+    school = db.relationship("School", back_populates="users")
+    devices = db.relationship("Device", back_populates="user")
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)

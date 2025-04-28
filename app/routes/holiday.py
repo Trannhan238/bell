@@ -105,6 +105,35 @@ def get_holidays():
         "total": pagination.total
     }), 200
 
+# GET /api/holiday/all
+@holiday_bp.route("/all", methods=["GET"])
+@jwt_required()
+def get_all_holidays():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user or user.role != "admin":
+        return jsonify({"error": "Access denied"}), 403
+
+    # Lấy tất cả ngày nghỉ không phân biệt trường học
+    holidays = Holiday.query.all()
+    result = [
+        {
+            "id": h.id,
+            "name": h.name,
+            "start_date": h.start_date.strftime("%Y-%m-%d"),
+            "end_date": h.end_date.strftime("%Y-%m-%d"),
+            "school_id": h.school_id,
+            "school_name": h.school.name if h.school else "Toàn hệ thống"
+        }
+        for h in holidays
+    ]
+
+    return jsonify({
+        "data": result,
+        "total": len(result)
+    }), 200
+
 # PUT /api/holiday/<int:holiday_id>
 @holiday_bp.route("/<int:holiday_id>", methods=["PUT"])
 @jwt_required()

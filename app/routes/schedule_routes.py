@@ -25,16 +25,14 @@ def create_schedule():
     if not user:
         return jsonify(message="User not found"), 404
 
-    if user.role != 'school_user':  # Kiểm tra vai trò người dùng
+    # Thêm 'school_admin' vào danh sách các role được phép
+    if user.role not in ['admin', 'school_user', 'school_admin']:
         return jsonify(message="Access denied"), 403
-
-    if not user.school_id:  # Kiểm tra người dùng có liên kết với trường học không
-        return jsonify(message="User is not assigned to any school"), 403
-
+        
     data = request.get_json()
     if not data:
         return jsonify(message="Invalid data"), 400
-
+    
     # Kiểm tra dữ liệu đầu vào
     if 'start_time' not in data or not valid_time_format(data['start_time']):
         return jsonify(message="Invalid start time format. Expected format: HH:MM"), 400
@@ -45,13 +43,23 @@ def create_schedule():
     if 'bell_type' not in data or not isinstance(data['bell_type'], str):
         return jsonify(message="Invalid bell_type. Should be a string"), 400
     
+    # Nếu là admin và không có school_id trong dữ liệu, yêu cầu cung cấp
+    school_id = None
+    if user.role == 'admin':
+        school_id = data.get('school_id')
+        if not school_id:
+            return jsonify(message="Admin needs to provide school_id"), 400
+    else:
+        # Nếu là school_user, sử dụng school_id của họ
+        school_id = user.school_id
+    
     # Chuyển đổi chuỗi thời gian thành đối tượng datetime.time
     start_time = datetime.strptime(data["start_time"], "%H:%M").time()
     end_time = datetime.strptime(data["end_time"], "%H:%M").time()
     
     # Tạo mới lịch chuông
     new_schedule = Schedule(
-        school_id=user.school_id,
+        school_id=school_id,
         start_time=start_time,
         end_time=end_time,
         day_of_week=data["day_of_week"],
@@ -69,26 +77,45 @@ def create_schedule():
 def get_schedules():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
-    if not user or user.role not in ['school_user', 'school_admin']:
-        return jsonify(message="Access denied"), 403
-
-    # Phân trang
-    page = request.args.get('page', 1, type=int)
-    per_page = request.args.get('per_page', 10, type=int)
-    schedules = Schedule.query.filter_by(school_id=user.school_id).paginate(page, per_page, False)
-
-    schedules_data = []
+    
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 10, type=int)
+    
+    if user.role == "admin":
+        # Admin xem được tất cả lịch
+        school_id = request.args.get("school_id")
+        if school_id:
+            schedules = Schedule.query.filter_by(school_id=school_id).paginate(
+                page=page, per_page=per_page, error_out=False
+            )
+        else:
+            schedules = Schedule.query.paginate(
+                page=page, per_page=per_page, error_out=False
+            )
+    else:
+        # Người dùng thường chỉ thấy lịch của trường mình
+        schedules = Schedule.query.filter_by(school_id=user.school_id).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+    
+    result = []
     for schedule in schedules.items:
-        schedules_data.append({
+        result.append({
             "id": schedule.id,
-            "start_time": schedule.start_time.strftime('%H:%M'),
-            "end_time": schedule.end_time.strftime('%H:%M'),
             "day_of_week": schedule.day_of_week,
+            "start_time": schedule.start_time.strftime("%H:%M"),
+            "end_time": schedule.end_time.strftime("%H:%M") if schedule.end_time else None,
             "bell_type": schedule.bell_type,
-            "is_summer": schedule.is_summer
+            "is_summer": schedule.is_summer,
+            "school_id": schedule.school_id
         })
-
-    return jsonify(schedules=schedules_data, total=schedules.total, pages=schedules.pages)
+    
+    return jsonify({
+        "schedules": result,
+        "total": schedules.total,
+        "pages": schedules.pages,
+        "current_page": schedules.page
+    }), 200
 
 # API: Cập nhật lịch chuông
 @schedule_bp.route("/<int:schedule_id>", methods=["PUT"])
@@ -96,10 +123,21 @@ def get_schedules():
 def update_schedule(schedule_id):
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
-    if not user or user.role != 'school_user':
+    
+    if not user:
+        return jsonify(message="User not found"), 404
+        
+    # Cho phép cả admin, school_user và school_admin cập nhật lịch chuông
+    if user.role not in ['admin', 'school_user', 'school_admin']:
         return jsonify(message="Access denied"), 403
 
-    schedule = Schedule.query.filter_by(id=schedule_id, school_id=user.school_id).first()
+    # Nếu là admin, có thể chỉnh sửa lịch chuông của bất kỳ trường nào
+    # Nếu là school_user, chỉ có thể chỉnh sửa lịch chuông của trường mình
+    if user.role == 'admin':
+        schedule = Schedule.query.get(schedule_id)
+    else:
+        schedule = Schedule.query.filter_by(id=schedule_id, school_id=user.school_id).first()
+    
     if not schedule:
         return jsonify(message="Schedule not found or access denied"), 404
 
@@ -130,6 +168,10 @@ def update_schedule(schedule_id):
 
     if 'is_summer' in data:
         schedule.is_summer = data['is_summer']
+        
+    # Cho phép admin chỉnh sửa school_id
+    if user.role == 'admin' and 'school_id' in data:
+        schedule.school_id = data['school_id']
 
     db.session.commit()
 
@@ -141,10 +183,21 @@ def update_schedule(schedule_id):
 def delete_schedule(schedule_id):
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
-    if not user or user.role != 'school_user':
+    
+    if not user:
+        return jsonify(message="User not found"), 404
+    
+    # Cho phép cả admin, school_user và school_admin xóa lịch chuông
+    if user.role not in ['admin', 'school_user', 'school_admin']:
         return jsonify(message="Access denied"), 403
 
-    schedule = Schedule.query.filter_by(id=schedule_id, school_id=user.school_id).first()
+    # Nếu là admin, có thể xóa lịch chuông của bất kỳ trường nào
+    # Nếu là school_user hoặc school_admin, chỉ có thể xóa lịch chuông của trường mình
+    if user.role == 'admin':
+        schedule = Schedule.query.get(schedule_id)
+    else:
+        schedule = Schedule.query.filter_by(id=schedule_id, school_id=user.school_id).first()
+    
     if not schedule:
         return jsonify(message="Schedule not found or access denied"), 404
 
@@ -152,3 +205,20 @@ def delete_schedule(schedule_id):
     db.session.commit()
     
     return jsonify(message="Schedule deleted")
+
+# API: Debug thông tin người dùng
+@schedule_bp.route("/debug-user", methods=["GET"])
+@jwt_required()
+def debug_user():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify(message="User not found"), 404
+    
+    return jsonify({
+        "user_id": user.id,
+        "username": user.username,
+        "role": user.role,
+        "school_id": user.school_id
+    }), 200

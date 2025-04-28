@@ -1,1 +1,0 @@
-// gọi API, lưu SPIFFS

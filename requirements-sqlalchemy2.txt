@@ -1,0 +1,5 @@
+sqlalchemy>=2.0.0
+flask-sqlalchemy>=3.0.0
+alembic>=1.8.0
+flask>=2.2.0
+# Các thư viện phụ thuộc khác nếu cần

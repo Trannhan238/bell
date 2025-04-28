@@ -1,13 +1,16 @@
 from app import db
 from flask import Flask
 import os
+from datetime import time
 
 # Tạo app instance tạm thời nếu cần
 def create_app():
     app = Flask(__name__)
     
-    # Cấu hình database trực tiếp
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///school_bell.db'
+    # Cấu hình database với đường dẫn cụ thể
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'school_bell.db')
+    os.makedirs(os.path.dirname(db_path), exist_ok=True)  # Tạo thư mục data nếu chưa tồn tại
+    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
     # Khởi tạo extensions
@@ -32,14 +35,30 @@ if __name__ == "__main__":
         except ImportError:
             pass
         try:
+            from app.models.profile import BellProfile
+        except ImportError:
+            pass
+        try:
             from app.models.season_config import SeasonConfig
         except ImportError:
             pass
             
         print("Đang xóa tất cả các bảng...")
+        # Vô hiệu hóa kiểm tra khóa ngoại trước khi xóa (cho SQLite)
+        # Sử dụng cú pháp tương thích SQLAlchemy 2.0
+        with db.engine.begin() as conn:
+            conn.execute(db.text("PRAGMA foreign_keys = OFF"))
+            # Không cần gọi conn.commit() vì .begin() tự động commit khi kết thúc block
+
         db.drop_all()
         print("Đang tạo lại các bảng...")
         db.create_all()
+        
+        # Bật lại kiểm tra khóa ngoại sau khi tạo xong
+        with db.engine.begin() as conn:
+            conn.execute(db.text("PRAGMA foreign_keys = ON"))
+            # Không cần gọi conn.commit() vì .begin() tự động commit khi kết thúc block
+            
         print("Hoàn tất! Database đã được khởi tạo lại.")
         
         # Tạo dữ liệu mẫu thủ công
@@ -75,6 +94,41 @@ if __name__ == "__main__":
                     db.session.add(user)
                     db.session.commit()  # Commit sau mỗi lần tạo user
                     print(f"Đã tạo tài khoản {username}")
+                
+                # Tạo một bell profile mẫu cho mỗi trường
+                from datetime import date
+                profile = BellProfile(
+                    name=f"Profile chuẩn - {username}",
+                    active_from=date(2023, 9, 1),
+                    active_to=date(2024, 5, 31)
+                )
+                db.session.add(profile)
+                db.session.commit()
+                print(f"Đã tạo profile chuông cho {username}")
+                
+                # Tạo lịch chuông mẫu cho thứ Hai (day_of_week=0)
+                morning_types = ["Vào học", "Ra chơi", "Vào học", "Tan học buổi sáng"]
+                morning_times = [
+                    (time(7, 0), time(7, 30)),
+                    (time(9, 0), time(9, 15)),
+                    (time(9, 15), time(9, 30)),
+                    (time(11, 30), time(11, 45)),
+                ]
+                
+                # Thêm lịch buổi sáng với liên kết đến profile
+                for bell_type, (start, end) in zip(morning_types, morning_times):
+                    sch = Schedule(
+                        school_id=school.id,
+                        profile_id=profile.id,
+                        start_time=start,
+                        end_time=end,
+                        day_of_week=0,
+                        bell_type=bell_type,
+                        is_summer=False
+                    )
+                    db.session.add(sch)
+                db.session.commit()
+                print(f"Đã tạo lịch chuông cho {username}")
             
             print("Khởi tạo dữ liệu mẫu thành công")
         except Exception as e:

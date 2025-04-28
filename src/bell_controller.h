@@ -1,1 +1,0 @@
-// so giờ, bật relay

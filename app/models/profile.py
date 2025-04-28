@@ -9,4 +9,4 @@ class BellProfile(db.Model):
     active_from = db.Column(db.Date, nullable=False)  # Ngày bắt đầu
     active_to = db.Column(db.Date, nullable=False)    # Ngày kết thúc
 
-    schedules = db.relationship("Schedule", back_populates="profile", lazy=True)  # Define back_populates
+    schedules = db.relationship("Schedule", back_populates="profile", lazy=True)

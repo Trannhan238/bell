@@ -1,1 +1,0 @@
-// NTP / RTC (nếu gắn)

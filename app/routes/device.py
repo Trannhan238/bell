@@ -183,3 +183,26 @@ def update_device():
     db.session.commit()
     
     return jsonify(message="Device updated successfully"), 200
+
+@device_bp.route("/", methods=["GET"])
+@jwt_required()
+def get_device_details():
+    """Lấy danh sách thông tin chi tiết tất cả các thiết bị cho admin"""
+    devices = Device.query.all()
+    
+    result = []
+    for device in devices:
+        device_data = {
+            "id": device.id,
+            "name": device.name,
+            "ip_address": device.ip_address,
+            "mac_address": device.mac_address,
+            "status": device.status,
+            "active": device.active,
+            "school_id": device.school_id,
+            "user_id": device.user_id,
+            "last_seen": device.last_seen.isoformat() if device.last_seen else None
+        }
+        result.append(device_data)
+    
+    return jsonify(result), 200

@@ -23,16 +23,16 @@ class Holiday(db.Model):
             query = query.filter(Holiday.id != exclude_id)
         return query.first() is not None
 
-class DisabledPeriod(db.Model):  # Định nghĩa DisabledPeriod nếu cần
+class DisabledPeriod(db.Model):
     __tablename__ = "disabled_periods"
 
     id = db.Column(db.Integer, primary_key=True)
-    school_id = db.Column(db.Integer, db.ForeignKey("schools.id"), nullable=False)  # Thêm ForeignKey
+    school_id = db.Column(db.Integer, db.ForeignKey("schools.id"), nullable=False)
     start_date = db.Column(db.Date, nullable=False)
     end_date = db.Column(db.Date, nullable=False)
     description = db.Column(db.String(255), nullable=True)
 
     school = db.relationship(
         "School",
-        back_populates="disabled_periods"  # Sử dụng back_populates thay vì backref
+        back_populates="disabled_periods"
     )
