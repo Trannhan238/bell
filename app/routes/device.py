@@ -264,20 +264,18 @@ def get_device_schedule():
         school_id=device.school_id,
         day_of_week=weekday,
         is_summer=is_summer
-    ).all()
+    ).order_by(Schedule.time_point).all()
     
     schedules_data = []
     for schedule in schedules:
         schedules_data.append({
             "id": schedule.id,
-            "start_time": schedule.start_time.strftime('%H:%M'),
-            "end_time": schedule.end_time.strftime('%H:%M') if schedule.end_time else None,
+            "time": schedule.time_point.strftime('%H:%M'),
             "bell_type": schedule.bell_type
         })
     
-    # Đảm bảo hàm luôn có return statement
     return jsonify({
-        "message": "Today's schedules",
+        "message": "Lịch hôm nay",
         "date": today.strftime('%Y-%m-%d'),
         "is_summer": is_summer,
         "schedules": schedules_data

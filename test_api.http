@@ -1,5 +1,5 @@
-@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTgwMTcyNCwianRpIjoiNTQwYzRiM2QtYmJiMi00NzE3LTkwYjEtNDlhMDllNDM4Yzc3IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDU4MDE3MjQsImV4cCI6MTc0NTgwODkyNH0.25bnKMLbkMXmhyV9tlUj1DEHyEBqsklC-Ukeja35xs0
-@school_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTgwMTc1OCwianRpIjoiOTY1MzNkMGQtYmRhZi00ODhmLWEyYTgtYTBmNGUwMzM1OWU3IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NDU4MDE3NTgsImV4cCI6MTc0NTgwODk1OH0.paySi41tDTKekXtHM7yOtYuEfP5m3TTpXLABJfTKemw
+@admin_token = yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTg5NzY3NywianRpIjoiM2Q3ZGJmODctYzllMS00MmI1LWE4MmYtNDVlYzAwNTliMTdjIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDU4OTc2NzcsImV4cCI6MTc0NTkwNDg3N30.5VfQRSAkb4Evp_HI9zgWoVaQldYUlvWYtB7ZaA-Asms
+@school_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTg5NzcwMywianRpIjoiNDA4MTc5ZDEtMzIwMy00NjJjLWI2MWYtMDU5ODYyNDMxYzBhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NDU4OTc3MDMsImV4cCI6MTc0NTkwNDkwM30.zMvFwTeSLqWGjDQFNDwHX63HQM_9H7WI8F-VBrZo4_Q
 
 //========================================
 // XÁC THỰC NGƯỜI DÙNG
@@ -62,8 +62,8 @@ POST http://127.0.0.1:5000/api/device/register
 Content-Type: application/json
 
 {
-  "mac_address": "00:1A:2B:3C:4D:5B",
-  "school_id": 1
+  "mac_address": "00:1A:2B:3C:4D:5C",
+  "school_id": 2
 }
 
 ### 📟 Xác thực thiết bị (public API)
@@ -92,10 +92,10 @@ Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
 {
-  "device_id": 2,
+  "device_id": 6,
   "name": "ESP32-KhuA-Updated",
-  "school_id": 3,
-  "user_id": 3,
+  "school_id": 2,
+  "user_id": 2,
   "active": true
 }
 
@@ -116,35 +116,69 @@ Authorization: Bearer {{admin_token}}
 
 ### 🕰️ Danh sách lịch chuông (school hoặc admin)
 GET http://127.0.0.1:5000/api/schedule/
-Authorization: Bearer {{school_token}}
+Authorization: Bearer {{admin_token}}
 
 ### 🕰️ Lấy lịch chuông theo ID
-GET http://127.0.0.1:5000/api/schedule/1
+GET http://127.0.0.1:5000/api/schedule/2
 Authorization: Bearer {{school_token}}
 
-### ➕ Tạo lịch chuông (school)
+### ➕ Tạo lịch chuông vào học (school)
 POST http://127.0.0.1:5000/api/schedule/
 Content-Type: application/json
 Authorization: Bearer {{school_token}}
 
 {
-  "day_of_week": 2,
-  "start_time": "01:00",
-  "end_time": "01:15",
-  "bell_type": "Ra chơi",
+  "day_of_week": 1,
+  "time_point": "07:00",
+  "bell_type": "vào học",
   "is_summer": false
 }
 
-### ➕ Tạo lịch chuông (admin)
+### ➕ Tạo lịch chuông điểm tiết (school)
+POST http://127.0.0.1:5000/api/schedule/
+Content-Type: application/json
+Authorization: Bearer {{school_token}}
+
+{
+  "day_of_week": 1,
+  "time_point": "07:45",
+  "bell_type": "điểm tiết",
+  "is_summer": false
+}
+
+### ➕ Tạo lịch chuông ra chơi (school)
+POST http://127.0.0.1:5000/api/schedule/
+Content-Type: application/json
+Authorization: Bearer {{school_token}}
+
+{
+  "day_of_week": 1,
+  "time_point": "09:15",
+  "bell_type": "ra chơi",
+  "is_summer": false
+}
+
+### ➕ Tạo lịch chuông ra về (school)
+POST http://127.0.0.1:5000/api/schedule/
+Content-Type: application/json
+Authorization: Bearer {{school_token}}
+
+{
+  "day_of_week": 1,
+  "time_point": "11:30",
+  "bell_type": "ra về",
+  "is_summer": false
+}
+
+### ➕ Tạo lịch chuông vào học (admin)
 POST http://127.0.0.1:5000/api/schedule/
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
 {
   "day_of_week": 2,
-  "start_time": "01:00",
-  "end_time": "01:15",
-  "bell_type": "Ra chơi",
+  "time_point": "07:00",
+  "bell_type": "vào học",
   "is_summer": false,
   "school_id": 2
 }
@@ -156,9 +190,8 @@ Authorization: Bearer {{school_token}}
 
 {
   "day_of_week": 1,
-  "start_time": "10:20",
-  "end_time": "10:35",
-  "bell_type": "Điểm tiết",
+  "time_point": "07:15",
+  "bell_type": "vào học",
   "is_summer": false
 }
 
@@ -169,9 +202,8 @@ Authorization: Bearer {{admin_token}}
 
 {
   "day_of_week": 1,
-  "start_time": "10:20",
-  "end_time": "10:35",
-  "bell_type": "Điểm tiết",
+  "time_point": "07:15",
+  "bell_type": "vào học",
   "is_summer": false,
   "school_id": 2
 }
@@ -274,7 +306,7 @@ Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
 {
-  "school_id": 1,
+  "school_id": 2,
   "summer_start": "2025-06-01",
   "summer_end": "2025-09-30"
 }
@@ -285,9 +317,9 @@ Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
 {
-  "school_id": 1,
+  "school_id": 2,
   "summer_start": "2025-06-01",
-  "summer_end": "2025-09-30"
+  "summer_end": "2025-08-30"
 }
 
 ### 🗑️ Xoá cấu hình mùa hè (admin)

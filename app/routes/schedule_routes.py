@@ -31,37 +31,32 @@ def create_schedule():
         
     data = request.get_json()
     if not data:
-        return jsonify(message="Invalid data"), 400
+        return jsonify(message="Dữ liệu không hợp lệ"), 400
     
     # Kiểm tra dữ liệu đầu vào
-    if 'start_time' not in data or not valid_time_format(data['start_time']):
-        return jsonify(message="Invalid start time format. Expected format: HH:MM"), 400
-    if 'end_time' not in data or not valid_time_format(data['end_time']):
-        return jsonify(message="Invalid end time format. Expected format: HH:MM"), 400
-    if 'day_of_week' not in data or not isinstance(data['day_of_week'], int) or not (0 <= data['day_of_week'] <= 6):
-        return jsonify(message="Invalid day_of_week. Should be an integer between 0 (Sunday) and 6 (Saturday)"), 400
+    if 'time_point' not in data or not valid_time_format(data['time_point']):
+        return jsonify(message="Định dạng thời gian không hợp lệ. Định dạng mong đợi: HH:MM"), 400
     if 'bell_type' not in data or not isinstance(data['bell_type'], str):
-        return jsonify(message="Invalid bell_type. Should be a string"), 400
+        return jsonify(message="bell_type không hợp lệ. Phải là một chuỗi"), 400
+    if 'day_of_week' not in data or not isinstance(data['day_of_week'], int) or not (0 <= data['day_of_week'] <= 6):
+        return jsonify(message="day_of_week không hợp lệ. Phải là số nguyên từ 0 (Thứ Hai) đến 6 (Chủ Nhật)"), 400
     
-    # Nếu là admin và không có school_id trong dữ liệu, yêu cầu cung cấp
+    # Xác định school_id
     school_id = None
     if user.role == 'admin':
         school_id = data.get('school_id')
         if not school_id:
-            return jsonify(message="Admin needs to provide school_id"), 400
+            return jsonify(message="Admin cần cung cấp school_id"), 400
     else:
-        # Nếu là school_user, sử dụng school_id của họ
         school_id = user.school_id
     
     # Chuyển đổi chuỗi thời gian thành đối tượng datetime.time
-    start_time = datetime.strptime(data["start_time"], "%H:%M").time()
-    end_time = datetime.strptime(data["end_time"], "%H:%M").time()
+    time_point = datetime.strptime(data["time_point"], "%H:%M").time()
     
-    # Tạo mới lịch chuông
+    # Tạo lịch mới
     new_schedule = Schedule(
         school_id=school_id,
-        start_time=start_time,
-        end_time=end_time,
+        time_point=time_point,
         day_of_week=data["day_of_week"],
         bell_type=data["bell_type"],
         is_summer=data.get("is_summer", False),
@@ -69,7 +64,7 @@ def create_schedule():
     db.session.add(new_schedule)
     db.session.commit()
     
-    return jsonify(message="Schedule created successfully", id=new_schedule.id), 201
+    return jsonify(message="Lịch được tạo thành công", id=new_schedule.id), 201
 
 # API: Lấy danh sách lịch chuông
 @schedule_bp.route("/", methods=["GET"])
@@ -103,8 +98,9 @@ def get_schedules():
         result.append({
             "id": schedule.id,
             "day_of_week": schedule.day_of_week,
-            "start_time": schedule.start_time.strftime("%H:%M"),
-            "end_time": schedule.end_time.strftime("%H:%M") if schedule.end_time else None,
+            "start_time": schedule.start_time.strftime("%H:%M") if hasattr(schedule, 'start_time') else None,
+            "end_time": schedule.end_time.strftime("%H:%M") if hasattr(schedule, 'end_time') and schedule.end_time else None,
+            "time_point": schedule.time_point.strftime("%H:%M") if hasattr(schedule, 'time_point') else None,
             "bell_type": schedule.bell_type,
             "is_summer": schedule.is_summer,
             "school_id": schedule.school_id
@@ -146,15 +142,20 @@ def update_schedule(schedule_id):
         return jsonify(message="Invalid data"), 400
 
     # Kiểm tra và chuyển đổi các trường hợp lỗi hoặc thay đổi
-    if 'start_time' in data:
+    if 'start_time' in data and hasattr(schedule, 'start_time'):
         if not valid_time_format(data['start_time']):
             return jsonify(message="Invalid start time format. Expected format: HH:MM"), 400
         schedule.start_time = datetime.strptime(data['start_time'], "%H:%M").time()
 
-    if 'end_time' in data:
+    if 'end_time' in data and hasattr(schedule, 'end_time'):
         if not valid_time_format(data['end_time']):
             return jsonify(message="Invalid end time format. Expected format: HH:MM"), 400
         schedule.end_time = datetime.strptime(data['end_time'], "%H:%M").time()
+
+    if 'time_point' in data and hasattr(schedule, 'time_point'):
+        if not valid_time_format(data['time_point']):
+            return jsonify(message="Invalid time_point format. Expected format: HH:MM"), 400
+        schedule.time_point = datetime.strptime(data['time_point'], "%H:%M").time()
 
     if 'day_of_week' in data:
         if not isinstance(data['day_of_week'], int) or not (0 <= data['day_of_week'] <= 6):

@@ -47,3 +47,73 @@ Authorization: Bearer {{device_token}}
 {
   "reason": "test_restart"
 }
+
+### 📝 Thêm một điểm thời gian mới vào lịch (Admin)
+POST http://127.0.0.1:5000/api/schedule
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "school_id": 1,
+  "time_point": "07:00",
+  "day_of_week": 1,
+  "bell_type": "vào học",
+  "is_summer": false
+}
+
+### 📝 Thêm điểm tiết học
+POST http://127.0.0.1:5000/api/schedule
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "school_id": 1,
+  "time_point": "07:45",
+  "day_of_week": 1,
+  "bell_type": "điểm tiết",
+  "is_summer": false
+}
+
+### 📝 Thêm giờ ra chơi
+POST http://127.0.0.1:5000/api/schedule
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "school_id": 1,
+  "time_point": "09:15",
+  "day_of_week": 1,
+  "bell_type": "ra chơi",
+  "is_summer": false
+}
+
+### 📝 Thêm giờ ra về
+POST http://127.0.0.1:5000/api/schedule
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "school_id": 1,
+  "time_point": "11:30",
+  "day_of_week": 1,
+  "bell_type": "ra về",
+  "is_summer": false
+}
+
+### 📋 Lấy tất cả các điểm thời gian trong lịch của một trường
+GET http://127.0.0.1:5000/api/schedule?school_id=1
+Authorization: Bearer {{admin_token}}
+
+### ✏️ Cập nhật một điểm thời gian trong lịch
+PUT http://127.0.0.1:5000/api/schedule/1
+Content-Type: application/json
+Authorization: Bearer {{admin_token}}
+
+{
+  "time_point": "07:15",
+  "bell_type": "vào học"
+}
+
+### 🗑️ Xóa một điểm thời gian trong lịch
+DELETE http://127.0.0.1:5000/api/schedule/1
+Authorization: Bearer {{admin_token}}

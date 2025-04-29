@@ -107,28 +107,31 @@ if __name__ == "__main__":
                 print(f"Đã tạo profile chuông cho {username}")
                 
                 # Tạo lịch chuông mẫu cho thứ Hai (day_of_week=0)
-                morning_types = ["Vào học", "Ra chơi", "Vào học", "Tan học buổi sáng"]
-                morning_times = [
-                    (time(7, 0), time(7, 30)),
-                    (time(9, 0), time(9, 15)),
-                    (time(9, 15), time(9, 30)),
-                    (time(11, 30), time(11, 45)),
+                # Sử dụng mô hình điểm thời gian thay vì khoảng thời gian
+                bell_points = [
+                    (time(7, 0), "vào học"),
+                    (time(7, 45), "điểm tiết"),
+                    (time(8, 30), "điểm tiết"),
+                    (time(9, 0), "ra chơi"),
+                    (time(9, 15), "vào học"),
+                    (time(10, 0), "điểm tiết"),
+                    (time(10, 45), "điểm tiết"),
+                    (time(11, 30), "ra về")
                 ]
                 
-                # Thêm lịch buổi sáng với liên kết đến profile
-                for bell_type, (start, end) in zip(morning_types, morning_times):
+                # Thêm lịch với liên kết đến profile
+                for time_point, bell_type in bell_points:
                     sch = Schedule(
                         school_id=school.id,
                         profile_id=profile.id,
-                        start_time=start,
-                        end_time=end,
+                        time_point=time_point,
                         day_of_week=0,
                         bell_type=bell_type,
                         is_summer=False
                     )
                     db.session.add(sch)
                 db.session.commit()
-                print(f"Đã tạo lịch chuông cho {username}")
+                print(f"Đã tạo lịch chuông mới cho {username}")
             
             print("Khởi tạo dữ liệu mẫu thành công")
         except Exception as e:
