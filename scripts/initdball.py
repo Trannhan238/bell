@@ -5,13 +5,25 @@ from app import create_app, db
 from app.models.user import User
 from app.models.school import School
 from app.models.schedule import Schedule
+from app.models.season_config import SeasonConfig
 from datetime import time
 
 def init_db():
     app = create_app()
     with app.app_context():
-        db.create_all()  # Khởi tạo các bảng nếu chưa tồn tại
-        
+        db.drop_all()  # Drop all tables to start fresh
+
+        # Explicitly create the `school` table first
+        from app.models.school import School
+        School.__table__.create(db.engine)
+
+        # Then create the `season_config` table
+        from app.models.season_config import SeasonConfig
+        SeasonConfig.__table__.create(db.engine)
+
+        # Create other tables
+        db.create_all()  # Create remaining tables
+
         # Tạo admin hệ thống
         if not User.query.filter_by(username="admin").first():
             admin = User(username="admin", role="admin", full_name="ADMIN")
@@ -61,8 +73,7 @@ def init_db():
             for bell_type, (start, end) in zip(morning_types, morning_times):
                 sch = Schedule(
                     school_id=school.id,
-                    start_time=start,
-                    end_time=end,
+                    time_point=start,  # Use time_point instead of start_time
                     day_of_week=0,
                     bell_type=bell_type,
                     is_summer=False
@@ -72,8 +83,7 @@ def init_db():
             for bell_type, (start, end) in zip(afternoon_types, afternoon_times):
                 sch = Schedule(
                     school_id=school.id,
-                    start_time=start,
-                    end_time=end,
+                    time_point=start,  # Use time_point instead of start_time
                     day_of_week=0,
                     bell_type=bell_type,
                     is_summer=False

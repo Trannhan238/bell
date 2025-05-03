@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+
+{% block title %}Chỉnh Sửa Người Dùng{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Chỉnh sửa người dùng</h1>
+    
+    <form method="POST" action="{{ url_for('user.web_edit_user', user_id=user.id) }}">
+        <div class="mb-3">
+            <label for="username" class="form-label">Tên đăng nhập</label>
+            <input type="text" class="form-control" id="username" name="username" value="{{ user.username }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="full_name" class="form-label">Họ tên</label>
+            <input type="text" class="form-control" id="full_name" name="full_name" value="{{ user.full_name }}">
+        </div>
+        
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}">
+        </div>
+        
+        <div class="mb-3">
+            <label for="role" class="form-label">Vai trò</label>
+            <select class="form-select" id="role" name="role" required>
+                <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                <option value="school_admin" {% if user.role == 'school_admin' %}selected{% endif %}>Quản trị viên trường</option>
+                <option value="school_user" {% if user.role == 'school_user' %}selected{% endif %}>Người dùng trường</option>
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="school_id" class="form-label">Trường học</label>
+            <select class="form-select" id="school_id" name="school_id">
+            <option value="">Không thuộc trường nào</option>
+            {% if schools %}
+            {% for school in schools %}
+            <option value="{{ school.id }}" {% if user.school_id == school.id %}selected{% endif %}>{{ school.name }}</option>
+            {% endfor %}
+            {% else %}
+            <option disabled>Không có trường nào</option>
+            {% endif %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="password" class="form-label">Mật khẩu mới (để trống nếu không đổi)</label>
+            <input type="password" class="form-control" id="password" name="password">
+        </div>
+        
+        <div class="mb-3 d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a href="{{ url_for('user.users_page') }}" class="btn btn-secondary">Hủy</a>
+        </div>
+    </form>
+    
+    <form method="POST" action="{{ url_for('user.web_delete_user', user_id=user.id) }}" onsubmit="return confirm('Bạn có chắc chắn muốn xóa người dùng này?');" class="mt-4">
+        <button type="submit" class="btn btn-danger">Xóa người dùng</button>
+    </form>
+</div>
+{% endblock %}

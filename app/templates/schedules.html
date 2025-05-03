@@ -1,0 +1,95 @@
+{% extends 'layout.html' %}
+{% block title %}Quản lý Lịch Chuông{% endblock %}
+{% block content %}
+<h2 class="mb-4">Danh sách Lịch Chuông</h2>
+<!-- Nút mở modal thêm lịch chuông -->
+<div class="d-flex justify-content-between mb-3">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addScheduleModal">Thêm lịch chuông</button>
+</div>
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>Giờ</th>
+            <th>Kiểu chuông</th>
+            <th>Ngày lặp lại</th>
+            <th>Thao tác</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% set days = ['Thứ 2', 'Thứ 3', 'Thứ 4', 'Thứ 5', 'Thứ 6', 'Thứ 7', 'Chủ Nhật'] %}
+        {% for key, group in schedules|groupby(attribute='time_point') %}
+        {% for bell_type, items in group|groupby(attribute='bell_type') %}
+        <tr>
+            <td>{{ key.strftime('%H:%M') }}</td>
+            <td>{{ bell_type }}</td>
+            <td>
+                {% for schedule in items %}
+                {{ days[schedule.day_of_week] }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            </td>
+            <td>
+                <a href="/schedules/edit/{{ items[0].id }}" class="btn btn-sm btn-warning">Sửa</a>
+                <a href="/schedules/delete/{{ items[0].id }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+{% if not schedules %}
+    <div class="alert alert-info">Chưa có lịch chuông nào.</div>
+{% endif %}
+
+<!-- Modal thêm lịch chuông -->
+<div class="modal fade" id="addScheduleModal" tabindex="-1" aria-labelledby="addScheduleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/schedules/add">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addScheduleModalLabel">Thêm lịch chuông mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="schoolId" class="form-label">Trường</label>
+            <select class="form-select" id="schoolId" name="school_id" required>
+              {% for school in schools %}
+              <option value="{{ school.id }}">{{ school.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="timePoint" class="form-label">Thời gian (HH:MM)</label>
+            <input type="time" class="form-control" id="timePoint" name="time_point" required>
+          </div>
+          <div class="mb-3">
+            <label for="bellType" class="form-label">Loại chuông</label>
+            <select class="form-select" id="bellType" name="bell_type" required>
+                <option value="Chào cờ">Chào cờ</option>
+                <option value="Vào học">Vào học</option>
+                <option value="Ra chơi">Ra chơi</option>
+                <option value="Điểm tiết">Điểm tiết</option>
+                <option value="Ra về">Ra về</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="repeatDays" class="form-label">Lặp lại vào các ngày</label>
+            <div id="repeatDays" class="form-check">
+                {% for i in range(7) %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="repeatDay{{ i }}" name="repeat_days" value="{{ i }}">
+                    <label class="form-check-label" for="repeatDay{{ i }}">{{ days[i] }}</label>
+                </div>
+                {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Thêm mới</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

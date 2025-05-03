@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+
+{% block title %}Chỉnh Sửa Ngày Nghỉ{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Chỉnh sửa ngày nghỉ</h1>
+    
+    <form method="POST" action="{{ url_for('holiday.web_edit_holiday', holiday_id=holiday.id) }}">
+        <div class="mb-3">
+            <label for="name" class="form-label">Tên ngày nghỉ</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ holiday.name }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="start_date" class="form-label">Ngày bắt đầu</label>
+            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ holiday.start_date }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="end_date" class="form-label">Ngày kết thúc</label>
+            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ holiday.end_date }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="school_id" class="form-label">Trường học</label>
+            <select class="form-select" id="school_id" name="school_id">
+                <option value="">-- Toàn hệ thống --</option>
+                {% for school in schools %}
+                <option value="{{ school.id }}" {% if holiday.school_id == school.id %}selected{% endif %}>{{ school.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3 d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a href="{{ url_for('holiday.holidays_page') }}" class="btn btn-secondary">Hủy</a>
+        </div>
+    </form>
+    
+    <form method="POST" action="{{ url_for('holiday.web_delete_holiday', holiday_id=holiday.id) }}" onsubmit="return confirm('Bạn có chắc chắn muốn xóa ngày nghỉ này?');" class="mt-4">
+        <button type="submit" class="btn btn-danger">Xóa ngày nghỉ</button>
+    </form>
+</div>
+{% endblock %}

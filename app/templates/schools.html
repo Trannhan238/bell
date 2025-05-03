@@ -1,0 +1,67 @@
+{% extends 'layout.html' %}
+{% block title %}Quản lý Trường học{% endblock %}
+{% block content %}
+<h2 class="mb-4">Danh sách Trường học</h2>
+<!-- Nút mở modal thêm trường học -->
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addSchoolModal">Thêm trường học</button>
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Tên trường</th>
+            <th>Địa chỉ</th>
+            <th>Số điện thoại</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for school in schools %}
+        <tr>
+            <td>{{ school.id }}</td>
+            <td>{{ school.name }}</td>
+            <td>{{ school.address }}</td>
+            <td>{{ school.phone }}</td>
+            <td>
+                <a href="/schools/edit/{{ school.id }}" class="btn btn-sm btn-warning">Sửa</a>
+                <a href="/schools/delete/{{ school.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if not schools %}
+    <div class="alert alert-info">Chưa có trường học nào.</div>
+{% endif %}
+
+<!-- Modal thêm trường học -->
+<div class="modal fade" id="addSchoolModal" tabindex="-1" aria-labelledby="addSchoolModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/schools/add">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addSchoolModalLabel">Thêm trường học mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="schoolName" class="form-label">Tên trường</label>
+            <input type="text" class="form-control" id="schoolName" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="address" class="form-label">Địa chỉ</label>
+            <input type="text" class="form-control" id="address" name="address">
+          </div>
+          <div class="mb-3">
+            <label for="phone" class="form-label">Số điện thoại</label>
+            <input type="text" class="form-control" id="phone" name="phone">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Thêm mới</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

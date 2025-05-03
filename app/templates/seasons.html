@@ -1,0 +1,74 @@
+{% extends 'layout.html' %}
+{% block title %}Quản lý Mùa vụ{% endblock %}
+{% block content %}
+<h2 class="mb-4">Danh sách kỳ nghỉ hè các trường</h2>
+<!-- Nút mở modal thêm mùa vụ -->
+
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Trường</th>
+            <th>Bắt đầu hè</th>
+            <th>Kết thúc hè</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for school in schools %}
+        <tr>
+            <td>{{ school.id }}</td>
+            <td>{{ school.name }}</td>
+            <td>{% if school.seasons|length > 0 %}{{ school.seasons[-1].summer_start.strftime('%d/%m/%Y') }}{% else %}Chưa có{% endif %}</td>
+            <td>{% if school.seasons|length > 0 %}{{ school.seasons[-1].summer_end.strftime('%d/%m/%Y') }}{% else %}Chưa có{% endif %}</td>
+            <td>
+                <a href="/seasons/add?school_id={{ school.id }}" class="btn btn-sm btn-success">Thêm</a>
+                {% if school.seasons|length > 0 %}
+                <a href="/seasons/edit/{{ school.seasons[-1].id }}" class="btn btn-sm btn-warning">Sửa</a>
+                <a href="/seasons/delete/{{ school.seasons[-1].id }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if not schools %}
+    <div class="alert alert-info">Chưa có trường nào.</div>
+{% endif %}
+
+<!-- Modal thêm mùa vụ -->
+<div class="modal fade" id="addSeasonModal" tabindex="-1" aria-labelledby="addSeasonModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/seasons/add">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addSeasonModalLabel">Thêm mùa vụ mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="schoolId" class="form-label">Trường</label>
+            <select class="form-select" id="schoolId" name="school_id" required>
+              {% for school in schools %}
+              <option value="{{ school.id }}">{{ school.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="summerStart" class="form-label">Bắt đầu hè</label>
+            <input type="date" class="form-control" id="summerStart" name="summer_start" value="{{ current_year }}-06-01" required>
+          </div>
+          <div class="mb-3">
+            <label for="summerEnd" class="form-label">Kết thúc hè</label>
+            <input type="date" class="form-control" id="summerEnd" name="summer_end" value="{{ current_year }}-08-30" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Thêm mới</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

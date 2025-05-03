@@ -4,7 +4,7 @@ from app.models.holiday import Holiday
 from app.models.device import Device
 from app.models.user import User
 from app.models.schedule import Schedule
-from app.models.season import SeasonConfig  # <--- Import bảng mùa
+from app.models.season_config import SeasonConfig  # Updated import to point to the correct file
 from app import db
 from datetime import date
 
@@ -78,8 +78,7 @@ def get_today_schedule():
     for schedule in schedules:
         schedules_data.append({
             "id": schedule.id,
-            "start_time": schedule.start_time.strftime('%H:%M'),
-            "end_time": schedule.end_time.strftime('%H:%M'),
+            "time_point": schedule.time_point.strftime('%H:%M') if hasattr(schedule, 'time_point') and schedule.time_point else None,
             "bell_type": schedule.bell_type,
             "is_summer": schedule.is_summer
         })

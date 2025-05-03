@@ -1,0 +1,98 @@
+{% extends 'layout.html' %}
+{% block title %}Quản lý Người dùng{% endblock %}
+{% block content %}
+<h2 class="mb-4">Danh sách Người dùng</h2>
+<!-- Nút mở modal thêm người dùng -->
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addUserModal">Thêm người dùng</button>
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Tên đăng nhập</th>
+            <th>Họ tên</th>
+            <th>Email</th>
+            <th>Vai trò</th>
+            <th>Trường</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.full_name }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+                {% if user.role == 'admin' %}
+                    <span class="badge bg-danger">Admin</span>
+                {% elif user.role == 'school_user' %}
+                    <span class="badge bg-primary">Trường</span>
+                {% else %}
+                    <span class="badge bg-secondary">Khác</span>
+                {% endif %}
+            </td>
+            <td>{{ user.school.name if user.school else '' }}</td>
+            <td>
+                <a href="/users/edit/{{ user.id }}" class="btn btn-sm btn-warning">Sửa</a>
+                <a href="/users/delete/{{ user.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if not users %}
+    <div class="alert alert-info">Chưa có người dùng nào.</div>
+{% endif %}
+
+<!-- Modal thêm người dùng -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/users/add">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addUserModalLabel">Thêm người dùng mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="username" class="form-label">Tên đăng nhập</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Mật khẩu</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+          </div>
+          <div class="mb-3">
+            <label for="fullName" class="form-label">Họ tên</label>
+            <input type="text" class="form-control" id="fullName" name="full_name">
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" name="email">
+          </div>
+          <div class="mb-3">
+            <label for="role" class="form-label">Vai trò</label>
+            <select class="form-select" id="role" name="role">
+              <option value="school_user">Trường</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="schoolId" class="form-label">Trường</label>
+            <select class="form-select" id="schoolId" name="school_id">
+              {% for school in schools %}
+                <option value="{{ school.id }}">{{ school.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Thêm mới</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

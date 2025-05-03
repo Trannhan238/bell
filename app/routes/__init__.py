@@ -1,3 +1,4 @@
+from flask import render_template, redirect, url_for, session
 from .auth import auth_bp
 from .user_routes import user_bp  # Đổi từ user thành user_routes
 from .school import school_bp
@@ -7,18 +8,45 @@ from .admin import admin_bp
 from .holiday import holiday_bp  # Đảm bảo dòng này tồn tại và không bị lỗi
 from .schedule_helper import schedule_helper_bp  # Đảm bảo dòng này tồn tại và không bị lỗi
 from .season import season_bp
+from .device_frontend import frontend_bp as device_frontend_bp  # Corrected import for frontend blueprint
+from app.models.device import Device
+from app.models.schedule import Schedule
+from app.models.user import User
+from app.models.season_config import SeasonConfig  # Updated import to point to the correct file
+from app.models.holiday import Holiday
+from app.models.school import School
+from app.utils.decorators import login_required
 
 def register_routes(app):
-    app.register_blueprint(auth_bp, url_prefix="/api/auth")
-    app.register_blueprint(user_bp, url_prefix="/api/user")  # Đảm bảo sử dụng user_bp từ user_routes
-    app.register_blueprint(school_bp, url_prefix="/api/school")
-    app.register_blueprint(device_bp, url_prefix="/api/device")
-    app.register_blueprint(schedule_bp, url_prefix="/api/schedule")
-    app.register_blueprint(admin_bp, url_prefix="/api/admin")
-    app.register_blueprint(holiday_bp, url_prefix="/api/holiday")
-    app.register_blueprint(schedule_helper_bp, url_prefix="/api/schedule-helper")
-    app.register_blueprint(season_bp, url_prefix="/api/season")
+    app.register_blueprint(auth_bp)  # Đăng ký auth_bp KHÔNG có url_prefix để các route như /login, /logout hoạt động ở gốc
+    app.register_blueprint(user_bp)  # Bỏ url_prefix để các route như /users hoạt động ở gốc domain
+    app.register_blueprint(school_bp)  # Bỏ url_prefix để các route như /schools hoạt động ở gốc domain
+    app.register_blueprint(device_bp, url_prefix="/api/device")  # Đăng ký các route liên quan đến thiết bị với prefix `/api/device`
+    app.register_blueprint(schedule_bp)  # Ensure schedule routes are registered
+    app.register_blueprint(admin_bp, url_prefix="/api/admin")  # Giữ url_prefix cho các blueprint API nếu cần
+    app.register_blueprint(holiday_bp)  # Bỏ url_prefix để các route như /holidays hoạt động ở gốc domain
+    app.register_blueprint(schedule_helper_bp, url_prefix="/api/schedule-helper")  # Giữ url_prefix cho các blueprint API nếu cần
+    app.register_blueprint(season_bp)  # Bỏ url_prefix để các route như /seasons hoạt động ở gốc domain
+    app.register_blueprint(device_frontend_bp)  # Đăng ký blueprint frontend KHÔNG có url_prefix để các route như /devices hoạt động ở gốc domain
 
     @app.route("/")
     def index():
-        return "Welcome to the School Bell API", 200
+        # Kiểm tra xem người dùng đã đăng nhập chưa (tự quản lý mà không dùng decorator)
+        if 'user' not in session:
+            return redirect(url_for('auth.login'))
+
+        # Nếu đã đăng nhập, hiển thị trang dashboard với thông tin stats
+        stats = {
+            'devices': Device.query.count(),
+            'schedules': Schedule.query.count(),
+            'users': User.query.count(),
+            'seasons': SeasonConfig.query.count(),
+            'holidays': Holiday.query.count(),
+            'schools': School.query.count(),
+        }
+
+        # Phân biệt template dựa trên vai trò của người dùng
+        if session['user']['role'] == 'admin':
+            return render_template("dashboard_admin.html", stats=stats)
+        else:
+            return render_template("dashboard_school.html", stats=stats)

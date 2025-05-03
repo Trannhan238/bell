@@ -1,0 +1,63 @@
+{% extends 'layout.html' %}
+{% block title %}Dashboard - Admin{% endblock %}
+{% block content %}
+<h2 class="mb-4">Tổng quan hệ thống (Admin)</h2>
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card text-bg-primary h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Thiết bị</h5>
+                <h2 class="card-text">{{ stats.devices }}</h2>
+                <a href="/devices" class="btn btn-light mt-2">Xem chi tiết</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-success h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Lịch chuông</h5>
+                <h2 class="card-text">{{ stats.schedules }}</h2>
+                <a href="/schedules" class="btn btn-light mt-2">Xem chi tiết</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-bg-warning h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Người dùng</h5>
+                <h2 class="card-text">{{ stats.users }}</h2>
+                <a href="/users" class="btn btn-light mt-2">Xem chi tiết</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Cấu hình nghỉ hè</h5>
+                <h2 class="card-text">{{ stats.seasons }}</h2>
+                <a href="{{ url_for('season.list_seasons') }}" class="btn btn-outline-primary mt-2">Xem chi tiết</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Ngày nghỉ</h5>
+                <h2 class="card-text">{{ stats.holidays }}</h2>
+                <a href="{{ url_for('holiday.holidays_page') }}" class="btn btn-outline-primary mt-2">Xem chi tiết</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Trường học</h5>
+                <h2 class="card-text">{{ stats.schools }}</h2>
+                <a href="/schools" class="btn btn-outline-primary mt-2">Xem chi tiết</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

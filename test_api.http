@@ -1,35 +1,40 @@
-@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTkxNTc2MCwianRpIjoiZGE3NjIzM2QtMTdkOC00NTY4LWI2NjQtOWUzZTRlZmU3MDc1IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDU5MTU3NjAsImV4cCI6MTc0NTkyMjk2MH0.8oAQEs0CIkfLF3w5z0iaLcNFJLqSOwQTTldpbcCivq8
-@school_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTkxNTc0MSwianRpIjoiZTEwZDg3MjMtNDYxMi00M2Q4LTk4MWUtM2I4NzQ1OTViNDk0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NDU5MTU3NDEsImV4cCI6MTc0NTkyMjk0MX0.ops3o3jjsDLch_bv_xx36zT1-A5B91KiwVtSrlpNZEg
-@device_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTkxNjcwNiwianRpIjoiNDBiYmQyZmQtYzkzOC00NDY0LWI2YzAtODJiZmM1NzJhOTU0IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjE6OTQ6NTQ6QzU6RTk6MUM6QjQiLCJuYmYiOjE3NDU5MTY3MDYsImV4cCI6MTc0ODUwODcwNn0._XzI0WXCjZD9Ebzsc_IQQZyPdJS8BZ3ndHEr33OhYV0
+@admin_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTk2MjcxNiwianRpIjoiZmYxM2NkNmItNWEyYy00MzUyLTg1YmEtM2Q0NzBlYjc0ZDllIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjEiLCJuYmYiOjE3NDU5NjI3MTYsImV4cCI6MTc0NTk2OTkxNn0.VUojih7VT7a3eAwgto9lTwee-joo13DFy_AhIIMMJII
+@school_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTk5MTUxNywianRpIjoiNDY2MDZiMDctNDNiMi00NjU5LTkxY2ItYzlmNjRkNDgxY2M5IiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjIiLCJuYmYiOjE3NDU5OTE1MTcsImV4cCI6MTc0NTk5ODcxN30.hF5ihN_JxhLGtwuk6-OjRSptQdX-Y_0B509acvwSWgU
+@device_token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0NTk2Mjc2MywianRpIjoiNjNkMDE5YzYtYjY3NS00NDI3LWI5MmItMjRmNDIyZmUyY2ZlIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IjE6OTQ6NTQ6QzU6RTk6MUM6QjQiLCJuYmYiOjE3NDU5NjI3NjMsImV4cCI6MTc0ODU1NDc2M30.THhVJzAUuipA95zr-UvgHps-Ap53lXwVMypWGWgIRFo
 
 //========================================
 // XÁC THỰC NGƯỜI DÙNG
 //========================================
 
-### 🔐 Login admin
-POST http://127.0.0.1:5000/api/auth/login
+### 🔐 Login admin để lấy token - API endpoint
+POST http://127.0.0.1:5000/login
 Content-Type: application/json
+Accept: application/json
 
 {
   "username": "admin",
   "password": "123"
 }
 
-### 🔐 Login school user/admin
-POST http://127.0.0.1:5000/api/auth/login
+### 🔐 Login school admin để lấy token
+POST http://127.0.0.1:5000/login
 Content-Type: application/json
+Accept: application/json
 
 {
-  "username": "ad1",
+  "username": "ad1", 
   "password": "123"
 }
 
+### 👤 Kiểm tra session hiện tại
+GET http://127.0.0.1:5000/check-session
+
 ### 👤 Lấy thông tin người dùng hiện tại
-GET http://127.0.0.1:5000/api/user/me
+GET http://127.0.0.1:5000/user/me
 Authorization: Bearer {{school_token}}
 
 ### 👤 Debug thông tin người dùng (role kiểm tra)
-GET http://127.0.0.1:5000/api/schedule/debug-user
+GET http://127.0.0.1:5000/schedule/debug-user
 Authorization: Bearer {{school_token}}
 
 //========================================
@@ -37,14 +42,14 @@ Authorization: Bearer {{school_token}}
 //========================================
 
 ### 🏫 Lấy danh sách tất cả trường học (admin)
-GET http://127.0.0.1:5000/api/school/
+GET http://127.0.0.1:5000/school/
 Authorization: Bearer {{admin_token}}
 
 //========================================
 // QUẢN LÝ THIẾT BỊ
 //========================================
 ### 📡 Đăng ký thiết bị ESP32 mới
-POST http://127.0.0.1:5000/api/device/register
+POST http://127.0.0.1:5000/device/register
 Content-Type: application/json
 
 {
@@ -52,7 +57,7 @@ Content-Type: application/json
 }
 
 ### 🔑 Xác thực thiết bị ESP32 và lấy token
-POST http://127.0.0.1:5000/api/device/authenticate
+POST http://127.0.0.1:5000/device/authenticate
 Content-Type: application/json
 
 {
@@ -61,7 +66,7 @@ Content-Type: application/json
 
 
 ### 📟 Đăng ký thiết bị (public API)
-POST http://127.0.0.1:5000/api/device/register
+POST http://127.0.0.1:5000/device/register
 Content-Type: application/json
 
 {
@@ -70,7 +75,7 @@ Content-Type: application/json
 }
 
 ### 📟 Kiểm tra xác thực thiết bị (public API)
-POST http://127.0.0.1:5000/api/device/authenticate
+POST http://127.0.0.1:5000/device/authenticate
 Content-Type: application/json
 
 {
@@ -78,46 +83,46 @@ Content-Type: application/json
 }
 
 ### 📟 Tạo thiết bị mới (admin)
-POST http://127.0.0.1:5000/api/device/create
+POST http://127.0.0.1:5000/device/create
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
 {
   "name": "ESP32-KhuA",
   "ip_address": "",
-  "mac_address": "94:54:C5:E9:1C:B4",
-  "school_id": 2,
+  "mac_address": "them gi nhap mac",
+  "school_id": 3,
   "active": true,
-  "user_id": 2
+  "user_id": 3
 }
 
 ### 📟 Lấy thông tin chi tiết thiết bị (admin)
-GET http://127.0.0.1:5000/api/device/
+GET http://127.0.0.1:5000/device/
 Authorization: Bearer {{admin_token}}
 
 ### 📟 Danh sách thiết bị (admin)
-GET http://127.0.0.1:5000/api/device/list
+GET http://127.0.0.1:5000/device/list
 Authorization: Bearer {{admin_token}}
 
 ### 📟 Danh sách thiết bị chưa được gán (admin)
-GET http://127.0.0.1:5000/api/device/unassigned
+GET http://127.0.0.1:5000/device/unassigned
 Authorization: Bearer {{admin_token}}
 
 ### 📟 Gán thiết bị cho trường và người dùng (admin)
-POST http://127.0.0.1:5000/api/device/assign
+POST http://127.0.0.1:5000/device/assign
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
 {
   "device_id": 1,
   "name": "ESP32-KhuA-Updated",
-  "school_id": 2,
+  "school_id": 1,
   "user_id": 2,
   "active": true
 }
 
 ### 📟 Cập nhật thông tin thiết bị (admin)
-POST http://127.0.0.1:5000/api/device/update
+POST http://127.0.0.1:5000/device/update
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
@@ -128,7 +133,7 @@ Authorization: Bearer {{admin_token}}
 }
 
 ### 📡 Kiểm tra trạng thái kết nối thiết bị (heartbeat)
-POST http://127.0.0.1:5000/api/device/heartbeat
+POST http://127.0.0.1:5000/device/heartbeat
 Content-Type: application/json
 Authorization: Bearer {{device_token}}
 
@@ -139,7 +144,7 @@ Authorization: Bearer {{device_token}}
 }
 
 ### 🔄 Thiết lập lại thiết bị (reset)
-POST http://127.0.0.1:5000/api/device/reset
+POST http://127.0.0.1:5000/device/reset
 Content-Type: application/json
 Authorization: Bearer {{device_token}}
 
@@ -152,79 +157,79 @@ Authorization: Bearer {{device_token}}
 //========================================
 
 ### 🕰️ Danh sách lịch chuông (school hoặc admin)
-GET http://127.0.0.1:5000/api/schedule/
+GET http://127.0.0.1:5000/schedule/
 Authorization: Bearer {{admin_token}}
 
 ### 🕰️ Lấy lịch chuông theo ID 
-GET http://127.0.0.1:5000/api/schedule/2
+GET http://127.0.0.1:5000/schedule/2
 Authorization: Bearer {{school_token}}
 
 ### 📋 Lấy tất cả các điểm thời gian trong lịch của một trường
-GET http://127.0.0.1:5000/api/schedule?school_id=1
+GET http://127.0.0.1:5000/schedule?school_id=1
 Authorization: Bearer {{admin_token}}
 
 ### 📆 Lấy lịch chuông hôm nay cho thiết bị
-GET http://127.0.0.1:5000/api/device/schedule/today
+GET http://127.0.0.1:5000/device/schedule/today
 Authorization: Bearer {{device_token}}
 
 ### 📆 Lấy lịch chuông hôm nay
-GET http://127.0.0.1:5000/api/schedule-helper/today
+GET http://127.0.0.1:5000/schedule-helper/today
 Authorization: Bearer {{school_token}}
 
 ### 📆 Lấy lịch chuông hôm nay (đường dẫn thay thế)
-GET http://127.0.0.1:5000/api/schedule-helper/schedule/today
+GET http://127.0.0.1:5000/schedule-helper/schedule/today
 Authorization: Bearer {{school_token}}
 
 ### ➕ Tạo lịch chuông vào học (school)
-POST http://127.0.0.1:5000/api/schedule/
+POST http://127.0.0.1:5000/schedule/
 Content-Type: application/json
 Authorization: Bearer {{school_token}}
 
 {
   "day_of_week": 2,
-  "time_point": "07:00",
-  "bell_type": "vào học",
+  "time_point": "15:30",
+  "bell_type": "Vào học",
   "is_summer": false
 }
 
 ### ➕ Tạo lịch chuông điểm tiết (school)
-POST http://127.0.0.1:5000/api/schedule/
+POST http://127.0.0.1:5000/schedule/
 Content-Type: application/json
 Authorization: Bearer {{school_token}}
 
 {
-  "day_of_week": 1,
-  "time_point": "07:45",
+  "day_of_week": 2,
+  "time_point": "14:30",
   "bell_type": "điểm tiết",
   "is_summer": false
 }
 
 ### ➕ Tạo lịch chuông ra chơi (school)
-POST http://127.0.0.1:5000/api/schedule/
+POST http://127.0.0.1:5000/schedule/
 Content-Type: application/json
 Authorization: Bearer {{school_token}}
 
 {
-  "day_of_week": 1,
+  "day_of_week": 2,
   "time_point": "09:15",
   "bell_type": "ra chơi",
   "is_summer": false
 }
 
 ### ➕ Tạo lịch chuông ra về (school)
-POST http://127.0.0.1:5000/api/schedule/
+POST http://127.0.0.1:5000/schedule/
 Content-Type: application/json
 Authorization: Bearer {{school_token}}
 
 {
-  "day_of_week": 1,
+  "day_of_week": 2,
   "time_point": "11:30",
   "bell_type": "ra về",
   "is_summer": false
 }
 
 ### ➕ Tạo lịch chuông vào học (admin)
-POST http://127.0.0.1:5000/api/schedule/
+POST http://127.0.0.1:5000/schedule/
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
@@ -237,7 +242,7 @@ Authorization: Bearer {{admin_token}}
 }
 
 ### 📝 Cập nhật lịch chuông (school)
-PUT http://127.0.0.1:5000/api/schedule/1
+PUT http://127.0.0.1:5000/schedule/1
 Content-Type: application/json
 Authorization: Bearer {{school_token}}
 
@@ -249,7 +254,7 @@ Authorization: Bearer {{school_token}}
 }
 
 ### 📝 Cập nhật lịch chuông (admin)
-PUT http://127.0.0.1:5000/api/schedule/1
+PUT http://127.0.0.1:5000/schedule/1
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
@@ -262,11 +267,11 @@ Authorization: Bearer {{admin_token}}
 }
 
 ### ❌ Xoá lịch chuông (school)
-DELETE http://127.0.0.1:5000/api/schedule/2
+DELETE http://127.0.0.1:5000/schedule/2
 Authorization: Bearer {{school_token}}
 
 ### ❌ Xoá lịch chuông (admin)
-DELETE http://127.0.0.1:5000/api/schedule/1
+DELETE http://127.0.0.1:5000/schedule/1
 Authorization: Bearer {{admin_token}}
 
 //========================================
@@ -274,43 +279,43 @@ Authorization: Bearer {{admin_token}}
 //========================================
 
 ### 📅 Lấy danh sách ngày nghỉ (mặc định theo trường của user)
-GET http://127.0.0.1:5000/api/holiday/
+GET http://127.0.0.1:5000/holiday/
 Authorization: Bearer {{school_token}}
 
 ### 📅 Lấy danh sách ngày nghỉ theo trường cụ thể (admin)
-GET http://127.0.0.1:5000/api/holiday/?school_id=1
+GET http://127.0.0.1:5000/holiday/?school_id=1
 Authorization: Bearer {{admin_token}}
 
 ### 📅 Lấy tất cả ngày nghỉ của tất cả trường (admin)
-GET http://127.0.0.1:5000/api/holiday/all
+GET http://127.0.0.1:5000/holiday/all
 Authorization: Bearer {{admin_token}}
 
 ### 📅 Lấy chi tiết một ngày nghỉ
-GET http://127.0.0.1:5000/api/holiday/1
+GET http://127.0.0.1:5000/holiday/1
 Authorization: Bearer {{admin_token}}
 
-### 📅 Kiểm tra một ngày có phải là ngày nghỉ không
-GET http://127.0.0.1:5000/api/holiday/check?date=2025-05-01
+### 📅 Kiểm tra một ngày có phải là ngày nghỉ không??
+GET http://127.0.0.1:5000/holiday/check?date=2025-05-01
 Authorization: Bearer {{school_token}}
 
 ### 🕵️‍♂️ Kiểm tra hôm nay có phải ngày nghỉ không? (theo thiết bị)
-GET http://127.0.0.1:5000/api/schedule-helper/is_holiday?device_id=1
+GET http://127.0.0.1:5000/schedule-helper/is_holiday?device_id=1
 Authorization: Bearer {{school_token}}
 
 ### 📅 Tạo ngày nghỉ (admin)
-POST http://127.0.0.1:5000/api/holiday/
+POST http://127.0.0.1:5000/holiday/
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
 {
   "name": "Nghỉ lễ 30/4",
   "start_date": "2025-04-30",
-  "end_date": "2025-05-01",
+  "end_date": "2025-05-05",
   "school_id": 1
 }
 
 ### 📅 Tạo ngày nghỉ: Tết Nguyên Đán (admin)
-POST http://127.0.0.1:5000/api/holiday/
+POST http://127.0.0.1:5000/holiday/
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
@@ -322,7 +327,7 @@ Authorization: Bearer {{admin_token}}
 }
 
 ### 📅 Tạo ngày nghỉ: Giỗ Tổ Hùng Vương (admin)
-POST http://127.0.0.1:5000/api/holiday/
+POST http://127.0.0.1:5000/holiday/
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
@@ -334,7 +339,7 @@ Authorization: Bearer {{admin_token}}
 }
 
 ### 📅 Cập nhật ngày nghỉ (admin)
-PUT http://127.0.0.1:5000/api/holiday/1
+PUT http://127.0.0.1:5000/holiday/1
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
@@ -345,11 +350,11 @@ Authorization: Bearer {{admin_token}}
 }
 
 ### ❌ Xoá ngày nghỉ (admin)
-DELETE http://127.0.0.1:5000/api/holiday/1
+DELETE http://127.0.0.1:5000/holiday/1
 Authorization: Bearer {{admin_token}}
 
 ### 📅 Đồng bộ ngày nghỉ với lịch quốc gia (admin)
-GET http://127.0.0.1:5000/api/holiday/sync?year=2025
+GET http://127.0.0.1:5000/holiday/sync?year=2025
 Authorization: Bearer {{admin_token}}
 
 //========================================
@@ -357,7 +362,7 @@ Authorization: Bearer {{admin_token}}
 //========================================
 
 ### 🛠️ Tạo cấu hình mùa hè (admin)
-PUT http://127.0.0.1:5000/api/season/config
+PUT http://127.0.0.1:5000/season/config
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
@@ -368,7 +373,7 @@ Authorization: Bearer {{admin_token}}
 }
 
 ### 🛠️ Cập nhật cấu hình mùa hè (admin)
-PUT http://127.0.0.1:5000/api/season/config
+PUT http://127.0.0.1:5000/season/config
 Content-Type: application/json
 Authorization: Bearer {{admin_token}}
 
@@ -379,7 +384,7 @@ Authorization: Bearer {{admin_token}}
 }
 
 ### 🗑️ Xoá cấu hình mùa hè (admin)
-DELETE http://127.0.0.1:5000/api/season/1
+DELETE http://127.0.0.1:5000/season/1
 Authorization: Bearer {{admin_token}}
 
 //========================================
@@ -387,5 +392,5 @@ Authorization: Bearer {{admin_token}}
 //========================================
 
 ### 📊 Thống kê hệ thống (admin)
-GET http://127.0.0.1:5000/api/admin/stats
+GET http://127.0.0.1:5000/admin/stats
 Authorization: Bearer {{admin_token}}

@@ -23,7 +23,7 @@ set /p confirm=Ban co chac muon DOWNLOAD code ve? (y/n):
 if /i "%confirm%"=="Y" (
     echo Dang download...
     git fetch origin
-    git reset --hard origin/main
+    git reset --hard origin/master
     echo Download hoan thanh!
 ) else (
     echo Huy download.
@@ -38,7 +38,7 @@ if /i "%confirm%"=="Y" (
     echo Dang upload...
     git add .
     git commit -m "Auto commit at %date% %time%"
-    git push origin main --force
+    git push origin master --force
     echo Upload hoan thanh!
 ) else (
     echo Huy upload.

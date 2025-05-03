@@ -1,0 +1,135 @@
+{% extends 'layout.html' %}
+{% block title %}Quản lý Thiết bị{% endblock %}
+{% block content %}
+<h2 class="mb-4">Danh sách Thiết bị</h2>
+<!-- Nút mở modal thêm thiết bị -->
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addDeviceModal">Thêm thiết bị</button>
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Tên thiết bị</th>
+            <th>Địa chỉ IP</th>
+            <th>MAC</th>
+            <th>Trạng thái</th>
+            <th>Trường</th>
+            <th>Người dùng</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for device in devices %}
+        <tr>
+            <td>{{ device.id }}</td>
+            <td>{{ device.name }}</td>
+            <td>{{ device.ip_address }}</td>
+            <td>{{ device.mac_address }}</td>
+            <td>
+                {% if device.active %}
+                    <span class="badge bg-success">Hoạt động</span>
+                {% else %}
+                    <span class="badge bg-secondary">Tạm ngưng</span>
+                {% endif %}
+            </td>
+            <td>{{ device.school.name if device.school else '' }}</td>
+            <td>{{ device.user.username if device.user else '' }}</td>
+            <td>
+                <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editDeviceModal{{ device.id }}">Sửa</button>
+                <form method="post" action="/devices/delete/{{ device.id }}" style="display:inline;">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</button>
+                </form>
+            </td>
+        </tr>
+        <!-- Modal sửa thiết bị -->
+        <div class="modal fade" id="editDeviceModal{{ device.id }}" tabindex="-1" aria-labelledby="editDeviceModalLabel{{ device.id }}" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form method="post" action="/devices/edit/{{ device.id }}">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="editDeviceModalLabel{{ device.id }}">Sửa thiết bị</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="mb-3">
+                    <label class="form-label">Tên thiết bị</label>
+                    <input type="text" class="form-control" name="name" value="{{ device.name }}" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Địa chỉ IP</label>
+                    <input type="text" class="form-control" name="ip_address" value="{{ device.ip_address }}">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Địa chỉ MAC</label>
+                    <input type="text" class="form-control" name="mac_address" value="{{ device.mac_address }}" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Trường</label>
+                    <select class="form-select" name="school_id">
+                      {% for school in schools %}
+                      <option value="{{ school.id }}" {% if school.id == device.school_id %}selected{% endif %}>
+                        {{ school.name }}
+                      </option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  
+                  <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="active" value="1" id="active{{ device.id }}" {% if device.active %}checked{% endif %}>
+                    <label class="form-check-label" for="active{{ device.id }}">Hoạt động</label>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                  <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+    </tbody>
+</table>
+{% if not devices %}
+    <div class="alert alert-info">Chưa có thiết bị nào.</div>
+{% endif %}
+
+<!-- Modal thêm thiết bị -->
+<div class="modal fade" id="addDeviceModal" tabindex="-1" aria-labelledby="addDeviceModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/devices/add">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addDeviceModalLabel">Thêm thiết bị mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="deviceName" class="form-label">Tên thiết bị</label>
+            <input type="text" class="form-control" id="deviceName" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="ipAddress" class="form-label">Địa chỉ IP</label>
+            <input type="text" class="form-control" id="ipAddress" name="ip_address">
+          </div>
+          <div class="mb-3">
+            <label for="macAddress" class="form-label">Địa chỉ MAC</label>
+            <input type="text" class="form-control" id="macAddress" name="mac_address" required>
+          </div>
+          <div class="mb-3">
+            <label for="schoolId" class="form-label">Trường</label>
+            <select class="form-select" id="schoolId" name="school_id" required>
+                {% for school in schools %}
+                <option value="{{ school.id }}">{{ school.name }}</option>
+                {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Thêm mới</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

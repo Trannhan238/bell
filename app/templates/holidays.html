@@ -1,0 +1,73 @@
+{% extends 'layout.html' %}
+{% block title %}Quản lý Ngày nghỉ{% endblock %}
+{% block content %}
+<h2 class="mb-4">Danh sách Ngày nghỉ</h2>
+<!-- Nút mở modal thêm ngày nghỉ -->
+<button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#addHolidayModal">Thêm ngày nghỉ</button>
+<table class="table table-bordered table-hover">
+    <thead class="table-light">
+        <tr>
+            <th>ID</th>
+            <th>Trường</th>
+            <th>Tên ngày nghỉ</th>
+            <th>Bắt đầu</th>
+            <th>Kết thúc</th>
+            <th>Hành động</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for holiday in holidays %}
+        <tr>
+            <td>{{ holiday.id }}</td>
+            <td>{{ holiday.school.name if holiday.school else 'Toàn hệ thống' }}</td>
+            <td>{{ holiday.name }}</td>
+            <td>{{ holiday.start_date.strftime('%d/%m/%Y') }}</td>
+            <td>{{ holiday.end_date.strftime('%d/%m/%Y') }}</td>
+            <td>
+                <a href="/holidays/edit/{{ holiday.id }}" class="btn btn-sm btn-warning">Sửa</a>
+                <a href="/holidays/delete/{{ holiday.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if not holidays %}
+    <div class="alert alert-info">Chưa có ngày nghỉ nào.</div>
+{% endif %}
+
+<!-- Modal thêm ngày nghỉ -->
+<div class="modal fade" id="addHolidayModal" tabindex="-1" aria-labelledby="addHolidayModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="post" action="/holidays/add">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addHolidayModalLabel">Thêm ngày nghỉ mới</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="schoolId" class="form-label">Trường (để trống nếu áp dụng toàn hệ thống)</label>
+            <input type="number" class="form-control" id="schoolId" name="school_id">
+          </div>
+          <div class="mb-3">
+            <label for="holidayName" class="form-label">Tên ngày nghỉ</label>
+            <input type="text" class="form-control" id="holidayName" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="startDate" class="form-label">Bắt đầu</label>
+            <input type="date" class="form-control" id="startDate" name="start_date" required>
+          </div>
+          <div class="mb-3">
+            <label for="endDate" class="form-label">Kết thúc</label>
+            <input type="date" class="form-control" id="endDate" name="end_date" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+          <button type="submit" class="btn btn-primary">Thêm mới</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

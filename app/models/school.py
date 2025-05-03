@@ -8,7 +8,7 @@ class School(db.Model):
     address = db.Column(db.String(200))
     phone = db.Column(db.String(20))
 
-    users = db.relationship("User", back_populates="school", lazy=True)
+    users = db.relationship("User", back_populates="school", lazy="dynamic")
     devices = db.relationship("Device", back_populates="school", lazy=True)
     disabled_periods = db.relationship(
         "DisabledPeriod",

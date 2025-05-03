@@ -9,7 +9,6 @@ schedule_bp = Blueprint("schedule", __name__, url_prefix="/api/schedule")
 
 # API tạo lịch chuông
 @schedule_bp.route("/create", methods=["POST"])
-@jwt_required()
 def create_schedule():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
@@ -51,7 +50,6 @@ def create_schedule():
 
 # API: Cập nhật lịch chuông
 @schedule_bp.route("/<int:schedule_id>", methods=["PUT"])
-@jwt_required()
 def update_schedule(schedule_id):
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
@@ -92,7 +90,6 @@ def update_schedule(schedule_id):
 
 # API: Xóa lịch chuông
 @schedule_bp.route("/<int:schedule_id>", methods=["DELETE"])
-@jwt_required()
 def delete_schedule(schedule_id):
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
@@ -108,7 +105,6 @@ def delete_schedule(schedule_id):
     return jsonify(message="Schedule deleted successfully"), 200
 
 @schedule_bp.route("/list", methods=["GET"])
-@jwt_required()
 def list_schedules():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
@@ -127,3 +123,31 @@ def list_schedules():
         for schedule in schedules
     ]
     return jsonify(schedule_list), 200
+
+@schedule_bp.route('/api/schedule/<int:schedule_id>', methods=['DELETE'])
+@jwt_required()
+def api_delete_schedule(schedule_id):
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify(message="User not found"), 404
+    
+    # Cho phép cả admin, school_user và school_admin xóa lịch chuông
+    if user.role not in ['admin', 'school_user', 'school_admin']:
+        return jsonify(message="Access denied"), 403
+
+    # Nếu là admin, có thể xóa lịch chuông của bất kỳ trường nào
+    # Nếu là school_user hoặc school_admin, chỉ có thể xóa lịch chuông của trường mình
+    if user.role == 'admin':
+        schedule = Schedule.query.get(schedule_id)
+    else:
+        schedule = Schedule.query.filter_by(id=schedule_id, school_id=user.school_id).first()
+    
+    if not schedule:
+        return jsonify(message="Schedule not found or access denied"), 404
+
+    db.session.delete(schedule)
+    db.session.commit()
+    
+    return jsonify(message="Schedule deleted")

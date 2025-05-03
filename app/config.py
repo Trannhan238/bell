@@ -14,6 +14,11 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY", "jwt-secret")
     JWT_ACCESS_TOKEN_EXPIRES = 7200  # Để 2 giờ để dễ dàng test, có thể thay đổi sau
+    # Chỉ bảo vệ JWT cho API, không cho giao diện web
+    JWT_TOKEN_LOCATION = ["headers"]
+    JWT_COOKIE_CSRF_PROTECT = False
+    JWT_COOKIE_SECURE = False
+    JWT_SESSION_COOKIE = False
 
 class DevConfig(Config):
     DEBUG = True

@@ -1,0 +1,58 @@
+{% extends 'layout.html' %}
+
+{% block title %}Chỉnh Sửa Lịch Chuông{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Chỉnh sửa lịch chuông</h1>
+    
+    <form method="POST" action="{{ url_for('schedule.web_edit_schedule', schedule_id=schedule.id) }}">
+        <div class="mb-3">
+            <label for="school_id" class="form-label">Trường học</label>
+            <select class="form-select" id="school_id" name="school_id" required>
+                {% for school in schools %}
+                <option value="{{ school.id }}" {% if schedule.school_id == school.id %}selected{% endif %}>{{ school.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="time_point" class="form-label">Thời điểm</label>
+            <input type="time" class="form-control" id="time_point" name="time_point" value="{{ schedule.time_point.strftime('%H:%M') if schedule.time_point else '' }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="bell_type" class="form-label">Loại chuông</label>
+            <select class="form-select" id="bell_type" name="bell_type" required>
+                <option value="Chào cờ" {% if schedule.bell_type == 'Chào cờ' %}selected{% endif %}>Chào cờ</option>
+                <option value="Vào học" {% if schedule.bell_type == 'Vào học' %}selected{% endif %}>Vào học</option>
+                <option value="Ra chơi" {% if schedule.bell_type == 'Ra chơi' %}selected{% endif %}>Ra chơi</option>
+                <option value="Điểm tiết" {% if schedule.bell_type == 'Điểm tiết' %}selected{% endif %}>Điểm tiết</option>
+                <option value="end_class" {% if schedule.bell_type == 'end_class' %}selected{% endif %}>Ra về</option>
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="repeatDays" class="form-label">Lặp lại vào các ngày</label>
+            <div id="repeatDays" class="form-check">
+                {% set days = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'] %}
+                {% for i in range(7) %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="repeatDay{{ i }}" name="repeat_days" value="{{ i }}" {% if i in schedule.repeat_days %}checked{% endif %}>
+                    <label class="form-check-label" for="repeatDay{{ i }}">{{ days[i] }}</label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="mb-3 d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a href="{{ url_for('schedule.schedules_page') }}" class="btn btn-secondary">Hủy</a>
+        </div>
+    </form>
+    
+    <form method="POST" action="{{ url_for('schedule.web_delete_schedule', schedule_id=schedule.id) }}" onsubmit="return confirm('Bạn có chắc chắn muốn xóa lịch chuông này?');" class="mt-4">
+        <button type="submit" class="btn btn-danger">Xóa lịch chuông</button>
+    </form>
+</div>
+{% endblock %}

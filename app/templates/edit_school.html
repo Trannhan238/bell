@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% block title %}Chỉnh Sửa Trường Học{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">Chỉnh sửa trường học</h1>
+    
+    <form method="POST" action="{{ url_for('school.edit_school', school_id=school.id) }}">
+        <div class="mb-3">
+            <label for="name" class="form-label">Tên trường</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ school.name }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="address" class="form-label">Địa chỉ</label>
+            <input type="text" class="form-control" id="address" name="address" value="{{ school.address }}">
+        </div>
+        
+        <div class="mb-3">
+            <label for="phone" class="form-label">Số điện thoại</label>
+            <input type="text" class="form-control" id="phone" name="phone" value="{{ school.phone }}">
+        </div>
+        
+        <div class="mb-3 d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a href="{{ url_for('school.get_schools') }}" class="btn btn-secondary">Hủy</a>
+        </div>
+    </form>
+    
+    <form method="POST" action="{{ url_for('school.delete_school', school_id=school.id) }}" onsubmit="return confirm('Bạn có chắc chắn muốn xóa trường học này?');" class="mt-4">
+        <button type="submit" class="btn btn-danger">Xóa trường học</button>
+    </form>
+</div>
+{% endblock %}

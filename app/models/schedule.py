@@ -3,7 +3,7 @@ from datetime import time
 
 class Schedule(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)
+    school_id = db.Column(db.Integer, db.ForeignKey('schools.id'), nullable=False)  # Corrected table name for foreign key
     profile_id = db.Column(db.Integer, db.ForeignKey('bell_profiles.id'), nullable=True)
     time_point = db.Column(db.Time, nullable=False)  # Điểm thời gian duy nhất thay vì start/end
     day_of_week = db.Column(db.Integer, nullable=False)  # 0 = Thứ Hai, ..., 6 = Chủ Nhật

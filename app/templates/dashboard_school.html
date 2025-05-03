@@ -1,0 +1,16 @@
+{% extends 'layout.html' %}
+{% block title %}Dashboard - School{% endblock %}
+{% block content %}
+<h2 class="mb-4">Tổng quan trường học</h2>
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card text-bg-success h-100">
+            <div class="card-body text-center">
+                <h5 class="card-title">Lịch chuông</h5>
+                <h2 class="card-text">{{ stats.schedules }}</h2>
+                <a href="/schedules" class="btn btn-light mt-2">Xem lịch chuông</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

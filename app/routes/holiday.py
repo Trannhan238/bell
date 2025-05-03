@@ -1,13 +1,16 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from marshmallow import Schema, fields, ValidationError, validates_schema
 from datetime import datetime, date
 from app.models.holiday import Holiday  # Ensure Holiday is imported
 from app.models.user import User  # Ensure User is imported
+from app.models.school import School  # Ensure School is imported
 from app import db  # Import db for database operations
 import logging  # Add logging for debugging
+from app.utils.decorators import login_required, admin_required, school_admin_required
 
-holiday_bp = Blueprint("holiday", __name__, url_prefix="/api/holiday")
+# Bỏ url_prefix để các route web hoạt động đúng
+holiday_bp = Blueprint("holiday", __name__)
 
 # Schema for validating holiday data
 class HolidaySchema(Schema):
@@ -29,8 +32,8 @@ pagination_schema = Schema.from_dict({
     "search": fields.String(load_default=None)  # Fixed
 })()
 
-# POST /api/holiday/
-@holiday_bp.route("/", methods=["POST"])
+# API routes - thêm đường dẫn /api/holiday/
+@holiday_bp.route("/api/holiday/", methods=["POST"])
 @jwt_required()
 def create_holiday():
     user_id = get_jwt_identity()
@@ -69,8 +72,7 @@ def create_holiday():
         logging.error(f"Error creating holiday: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500
 
-# GET /api/holiday/
-@holiday_bp.route("/", methods=["GET"])
+@holiday_bp.route("/api/holiday/", methods=["GET"])
 @jwt_required()
 def get_holidays():
     user_id = get_jwt_identity()
@@ -105,8 +107,7 @@ def get_holidays():
         "total": pagination.total
     }), 200
 
-# GET /api/holiday/all
-@holiday_bp.route("/all", methods=["GET"])
+@holiday_bp.route("/api/holiday/all", methods=["GET"])
 @jwt_required()
 def get_all_holidays():
     user_id = get_jwt_identity()
@@ -134,8 +135,7 @@ def get_all_holidays():
         "total": len(result)
     }), 200
 
-# PUT /api/holiday/<int:holiday_id>
-@holiday_bp.route("/<int:holiday_id>", methods=["PUT"])
+@holiday_bp.route("/api/holiday/<int:holiday_id>", methods=["PUT"])
 @jwt_required()
 def update_holiday(holiday_id):
     holiday = Holiday.query.get(holiday_id)
@@ -164,8 +164,7 @@ def update_holiday(holiday_id):
         logging.error(f"Error updating holiday {holiday_id}: {e}")
         return jsonify({"message": "An unexpected error occurred"}), 500
 
-# DELETE /api/holiday/<int:holiday_id>
-@holiday_bp.route("/<int:holiday_id>", methods=["DELETE"])
+@holiday_bp.route("/api/holiday/<int:holiday_id>", methods=["DELETE"])
 @jwt_required()
 def delete_holiday(holiday_id):
     user_id = get_jwt_identity()
@@ -186,3 +185,102 @@ def delete_holiday(holiday_id):
     except Exception as e:
         logging.error(f"Error deleting holiday {holiday_id}: {e}")
         return jsonify({"error": "An unexpected error occurred"}), 500
+
+# Web routes - giữ nguyên đường dẫn 
+@holiday_bp.route('/holidays', methods=['GET'])
+@login_required
+@admin_required
+def holidays_page():
+    holidays = Holiday.query.all()
+    return render_template('holidays.html', holidays=holidays)
+
+# POST /holidays/add
+@holiday_bp.route('/holidays/add', methods=['POST'])
+@login_required
+@admin_required
+def add_holiday():
+    school_id = request.form.get('school_id') or None
+    name = request.form.get('name')
+    start_date = request.form.get('start_date')
+    end_date = request.form.get('end_date')
+    try:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+    except ValueError:
+        flash('Invalid date format! Please use YYYY-MM-DD.', 'danger')
+        return redirect(url_for('holiday.holidays_page'))
+    # Kiểm tra trùng ngày nghỉ
+    if Holiday.query.filter_by(name=name, school_id=school_id, start_date=start_date, end_date=end_date).first():
+        flash('Ngày nghỉ này đã tồn tại!', 'danger')
+        return redirect(url_for('holiday.holidays_page'))
+    holiday = Holiday(
+        school_id=school_id,
+        name=name,
+        start_date=start_date,
+        end_date=end_date
+    )
+    db.session.add(holiday)
+    db.session.commit()
+    flash('Thêm ngày nghỉ thành công!', 'success')
+    return redirect(url_for('holiday.holidays_page'))
+
+@holiday_bp.route('/holidays/edit/<int:holiday_id>', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def web_edit_holiday(holiday_id):
+    holiday = Holiday.query.get_or_404(holiday_id)
+    schools = School.query.all()
+    
+    if request.method == 'POST':
+        name = request.form.get('name')
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        school_id = request.form.get('school_id') or None
+        
+        # Kiểm tra ngày nghỉ đã tồn tại chưa (nếu thay đổi thông tin)
+        existing_holiday = Holiday.query.filter(
+            Holiday.id != holiday_id,
+            Holiday.name == name, 
+            Holiday.school_id == school_id,
+            Holiday.start_date == start_date, 
+            Holiday.end_date == end_date
+        ).first()
+        
+        if existing_holiday:
+            flash('Ngày nghỉ này đã tồn tại!', 'danger')
+            return redirect(url_for('holiday.web_edit_holiday', holiday_id=holiday_id))
+        
+        # Kiểm tra start_date <= end_date
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+            
+            if start_date > end_date:
+                flash('Ngày bắt đầu phải sớm hơn hoặc bằng ngày kết thúc!', 'danger')
+                return redirect(url_for('holiday.web_edit_holiday', holiday_id=holiday_id))
+        except ValueError:
+            flash('Invalid date format! Please use YYYY-MM-DD.', 'danger')
+            return redirect(url_for('holiday.web_edit_holiday', holiday_id=holiday_id))
+        
+        # Cập nhật thông tin
+        holiday.name = name
+        holiday.start_date = start_date
+        holiday.end_date = end_date
+        holiday.school_id = school_id
+        
+        db.session.commit()
+        flash('Cập nhật ngày nghỉ thành công!', 'success')
+        return redirect(url_for('holiday.holidays_page'))
+    
+    # GET request - hiển thị form chỉnh sửa
+    return render_template('edit_holiday.html', holiday=holiday, schools=schools)
+
+@holiday_bp.route('/holidays/delete/<int:holiday_id>', methods=['POST'])
+@login_required
+@admin_required
+def web_delete_holiday(holiday_id):
+    holiday = Holiday.query.get_or_404(holiday_id)
+    db.session.delete(holiday)
+    db.session.commit()
+    flash('Xóa ngày nghỉ thành công!', 'success')
+    return redirect(url_for('holiday.holidays_page'))
