@@ -5,7 +5,7 @@ from app.models.device import Device
 from app.models.user import User
 from app.models.schedule import Schedule
 from app.models.season_config import SeasonConfig  # Updated import to point to the correct file
-from app.models.season_config import WinterShiftConfig
+from app.models.winter_shift_config import WinterShiftConfig  # Sử dụng đường dẫn đầy đủ
 from app import db
 from datetime import date, datetime
 

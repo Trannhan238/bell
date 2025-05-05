@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request, render_template, redirect, url_fo
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.user import User
 from app.models.school import School
-from app.models.winter_shift_config import WinterShiftConfig
+from app.models.winter_shift_config import WinterShiftConfig  # Sử dụng đường dẫn đầy đủ
 from app.utils.decorators import login_required, admin_required
 from app import db
 from datetime import date
@@ -74,27 +74,27 @@ def edit_season(season_id):
         try:
             school_id = int(school_id)  # Ensure school_id is an integer
 
-            start_date = date.fromisoformat(request.form.get('start_date'))
-            end_date = date.fromisoformat(request.form.get('end_date'))
+            start_month = int(request.form.get('start_month'))
+            end_month = int(request.form.get('end_month'))
             shift_minutes = int(request.form.get('shift_minutes'))
 
-            if start_date >= end_date:
-                raise ValueError("Start date must be before end date.")
+            if not (1 <= start_month <= 12 and 1 <= end_month <= 12):
+                raise ValueError("Tháng phải nằm trong khoảng từ 1 đến 12.")
 
             # Example: Save to winter_shift_config table
             winter_shift = WinterShiftConfig.query.filter_by(school_id=school_id).first()
             if not winter_shift:
                 winter_shift = WinterShiftConfig(
                     school_id=school_id,
-                    start_month=start_date.month,
-                    end_month=end_date.month,
+                    start_month=start_month,
+                    end_month=end_month,
                     morning_shift_minutes=shift_minutes,
                     afternoon_shift_minutes=shift_minutes
                 )
                 db.session.add(winter_shift)
             else:
-                winter_shift.start_month = start_date.month
-                winter_shift.end_month = end_date.month
+                winter_shift.start_month = start_month
+                winter_shift.end_month = end_month
                 winter_shift.morning_shift_minutes = shift_minutes
                 winter_shift.afternoon_shift_minutes = shift_minutes
 

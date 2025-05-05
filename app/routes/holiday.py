@@ -275,7 +275,7 @@ def web_edit_holiday(holiday_id):
     # GET request - hiển thị form chỉnh sửa
     return render_template('edit_holiday.html', holiday=holiday, schools=schools)
 
-@holiday_bp.route('/holidays/delete/<int:holiday_id>', methods=['POST'])
+@holiday_bp.route('/holidays/delete/<int:holiday_id>', methods=['POST', 'GET'])
 @login_required
 @admin_required
 def web_delete_holiday(holiday_id):

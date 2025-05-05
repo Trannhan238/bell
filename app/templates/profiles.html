@@ -1,0 +1,39 @@
+{% extends 'layout.html' %}
+
+{% block title %}Quản lý Bell Profiles{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-4">Quản lý Bell Profiles</h1>
+    <a href="{{ url_for('season.add_profile') }}" class="btn btn-primary mb-3">Thêm Profile</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Tên</th>
+                <th>Thời gian áp dụng</th>
+                <th>Điều chỉnh thời gian</th>
+                <th>Mô tả</th>
+                <th>Hành động</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for profile in profiles %}
+            <tr>
+                <td>{{ profile.id }}</td>
+                <td>{{ profile.name }}</td>
+                <td>{{ profile.active_from }} - {{ profile.active_to }}</td>
+                <td>{{ profile.time_adjustment }} phút</td>
+                <td>{{ profile.description }}</td>
+                <td>
+                    <a href="{{ url_for('season.edit_profile', profile_id=profile.id) }}" class="btn btn-warning btn-sm">Sửa</a>
+                    <form action="{{ url_for('season.delete_profile', profile_id=profile.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

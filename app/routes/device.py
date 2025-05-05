@@ -7,6 +7,8 @@ from flask_jwt_extended import jwt_required, create_access_token, get_jwt_identi
 from datetime import datetime, timedelta
 from app.utils.decorators import login_required, admin_required, school_admin_required
 from app.utils.helpers import validate_mac_address
+from app.models.winter_shift_config import WinterShiftConfig  # Sử dụng đường dẫn đầy đủ
+import logging
 
 device_bp = Blueprint("device", __name__)
 
@@ -97,69 +99,104 @@ def authenticate_device():
 @jwt_required()
 def get_device_schedule():
     """Endpoint cho ESP32 lấy lịch chuông của ngày hôm nay"""
+    logging.info("Received request for today's schedule")
+
     # Lấy thông tin từ JWT token
     identity = get_jwt_identity()
-    
+    logging.info(f"JWT identity: {identity}")
+
     # Phân tích identity từ chuỗi
     try:
         device_id = int(identity.split(":")[0])
+        logging.info(f"Device ID: {device_id}")
     except (ValueError, AttributeError, IndexError):
+        logging.error("Invalid device identity")
         return jsonify(message="Invalid device identity"), 403
-    
+
     # Lấy thông tin thiết bị
     device = Device.query.get(device_id)
     if not device or not device.active:
+        logging.error("Device not found or inactive")
         return jsonify(message="Device not found or inactive"), 404
-    
+
     if not device.school_id:
+        logging.error("Device not assigned to any school")
         return jsonify(message="Device not assigned to any school"), 403
-    
+
     from app.models.holiday import Holiday
     from app.models.schedule import Schedule
-    from app.models.season_config import SeasonConfig  # Updated import to use season_config
     from datetime import date
-    
+
     today = date.today()
     weekday = today.weekday()  # Monday is 0, Sunday is 6
-    
+    logging.info(f"Today: {today}, Weekday: {weekday}")
+
     # Kiểm tra nếu hôm nay là ngày nghỉ
     holiday = Holiday.query.filter(
         ((Holiday.school_id == None) | (Holiday.school_id == device.school_id)),
         (Holiday.start_date <= today),
         (Holiday.end_date >= today)
     ).first()
-    
+
     if holiday:
+        logging.info("Today is a holiday")
         return jsonify(message="Today is a holiday", schedules=[])
-    
-    # Tự động xác định mùa
-    season = SeasonConfig.query.filter_by(school_id=device.school_id).first()
-    if not season:
-        return jsonify(message="Missing season config", schedules=[]), 400
-    
+
+    # Xác định mùa dựa trên WinterShiftConfig
+    winter_config = WinterShiftConfig.query.filter_by(school_id=device.school_id).first()
+    logging.info(f"Winter config: {winter_config}")
+
+    # Mặc định là không phải mùa hè (tức là mùa học bình thường)
     is_summer = False
-    if season.summer_start and season.summer_end:
-        is_summer = season.summer_start <= today <= season.summer_end
-    
-    # Lấy lịch chuông
+
+    # Nếu có cấu hình mùa đông, kiểm tra xem hôm nay có phải là mùa đông không
+    is_winter = False
+    if winter_config:
+        current_month = today.month
+        # Xử lý trường hợp tháng bắt đầu > tháng kết thúc (ví dụ: 10 -> 3, tức là từ tháng 10 đến tháng 3 năm sau)
+        if winter_config.start_month > winter_config.end_month:
+            is_winter = (current_month >= winter_config.start_month) or (current_month <= winter_config.end_month)
+        else:
+            is_winter = winter_config.start_month <= current_month <= winter_config.end_month
+        logging.info(f"Is winter: {is_winter}")
+
+    logging.info(f"Device school_id: {device.school_id}")
+    logging.info(f"Querying schedules with: school_id={device.school_id}, day_of_week={weekday}, is_summer={is_summer}")
+
     schedules = Schedule.query.filter_by(
         school_id=device.school_id,
         day_of_week=weekday,
         is_summer=is_summer
     ).order_by(Schedule.time_point).all()
-    
+
+    logging.info(f"Schedules found: {len(schedules)}")
+
+    # Điều chỉnh thời gian nếu là mùa đông
     schedules_data = []
-    for schedule in schedules:
-        schedules_data.append({
-            "id": schedule.id,
-            "time": schedule.time_point.strftime('%H:%M'),
-            "bell_type": schedule.bell_type
-        })
-    
+    if is_winter and winter_config:
+        for schedule in schedules:
+            time_point = schedule.time_point
+            shift_minutes = winter_config.morning_shift_minutes if time_point.hour < 12 else winter_config.afternoon_shift_minutes
+            from datetime import datetime, timedelta
+            adjusted_dt = datetime.combine(today, time_point) + timedelta(minutes=shift_minutes)
+            schedules_data.append({
+                "id": schedule.id,
+                "time": adjusted_dt.strftime('%H:%M'),
+                "bell_type": schedule.bell_type
+            })
+    else:
+        for schedule in schedules:
+            schedules_data.append({
+                "id": schedule.id,
+                "time": schedule.time_point.strftime('%H:%M'),
+                "bell_type": schedule.bell_type
+            })
+
+    logging.info(f"Schedules data: {schedules_data}")
     return jsonify({
         "message": "Lịch hôm nay",
         "date": today.strftime('%Y-%m-%d'),
-        "is_summer": is_summer,
+        "is_winter": is_winter,
         "schedules": schedules_data
     })
 

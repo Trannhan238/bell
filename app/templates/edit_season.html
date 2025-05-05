@@ -6,16 +6,27 @@
 <h2 class="mb-4">Chỉnh sửa Mùa đông</h2>
 <form method="post" action="">
   <div class="mb-3">
-    <label for="startDate" class="form-label">Ngày bắt đầu</label>
-    <input type="date" class="form-control" id="startDate" name="start_date" value="{{ season.start_date if season else '' }}" required>
+    <label for="startMonth" class="form-label">Tháng bắt đầu (1-12)</label>
+    <input type="number" class="form-control" id="startMonth" name="start_month" min="1" max="12" value="{{ season.winter_shift_config.start_month if season and season.winter_shift_config else 10 }}" required>
   </div>
   <div class="mb-3">
-    <label for="endDate" class="form-label">Ngày kết thúc</label>
-    <input type="date" class="form-control" id="endDate" name="end_date" value="{{ season.end_date if season else '' }}" required>
+    <label for="endMonth" class="form-label">Tháng kết thúc (1-12)</label>
+    <input type="number" class="form-control" id="endMonth" name="end_month" min="1" max="12" value="{{ season.winter_shift_config.end_month if season and season.winter_shift_config else 3 }}" required>
   </div>
   <div class="mb-3">
     <label for="shiftMinutes" class="form-label">Số phút tăng hoặc giảm</label>
     <input type="number" class="form-control" id="shiftMinutes" name="shift_minutes" value="{{ season.shift_minutes if season else 0 }}" required>
+  </div>
+  <div class="mb-3">
+    <label for="schoolId" class="form-label">Trường học</label>
+    <select class="form-control" id="schoolId" name="school_id" required>
+      <option value="">-- Chọn trường học --</option>
+      {% for school in schools %}
+        <option value="{{ school.id }}" {% if season and season.school_id == school.id %}selected{% endif %}>
+          {{ school.name }}
+        </option>
+      {% endfor %}
+    </select>
   </div>
   <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
   <a href="{{ url_for('season.list_seasons') }}" class="btn btn-secondary">Hủy</a>

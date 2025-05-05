@@ -1,0 +1,6 @@
+@echo off
+echo Activating virtual environment...
+call venv\Scripts\activate
+
+echo Starting Flask...
+flask run --host=0.0.0.0 --debug

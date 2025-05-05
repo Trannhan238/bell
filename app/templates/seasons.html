@@ -11,6 +11,7 @@
             <th>Trường</th>
             <th>Bắt đầu</th>
             <th>Kết thúc</th>
+            <th>Số phút</th>
             <th>Hành động</th>
         </tr>
     </thead>
@@ -19,8 +20,9 @@
         <tr>
             <td>{{ school.id }}</td>
             <td>{{ school.name }}</td>
-            <td>{% if school.winter_shift %}{{ school.winter_shift.start_month }}{% else %}Chưa có{% endif %}</td>
-            <td>{% if school.winter_shift %}{{ school.winter_shift.end_month }}{% else %}Chưa có{% endif %}</td>
+            <td>{% if school.winter_shift_config %}{{ school.winter_shift_config.start_month }}/1{% else %}Chưa có{% endif %}</td>
+            <td>{% if school.winter_shift_config %}{{ school.winter_shift_config.end_month }}/31{% else %}Chưa có{% endif %}</td>
+            <td>{% if school.winter_shift_config %}{{ school.winter_shift_config.morning_shift_minutes }} phút{% else %}Chưa có{% endif %}</td>
             <td>
                 <a href="/seasons/edit/{{ school.id }}" class="btn btn-sm btn-warning">Chỉnh sửa</a>
             </td>

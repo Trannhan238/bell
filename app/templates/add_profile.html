@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+
+{% block title %}Thêm Bell Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-4">Thêm Bell Profile</h1>
+    <form method="post">
+        <div class="mb-3">
+            <label for="name" class="form-label">Tên Profile</label>
+            <input type="text" class="form-control" id="name" name="name" required>
+        </div>
+        <div class="mb-3">
+            <label for="active_from" class="form-label">Thời gian bắt đầu</label>
+            <input type="date" class="form-control" id="active_from" name="active_from" required>
+        </div>
+        <div class="mb-3">
+            <label for="active_to" class="form-label">Thời gian kết thúc</label>
+            <input type="date" class="form-control" id="active_to" name="active_to" required>
+        </div>
+        <div class="mb-3">
+            <label for="time_adjustment" class="form-label">Điều chỉnh thời gian (phút)</label>
+            <input type="number" class="form-control" id="time_adjustment" name="time_adjustment" value="0">
+        </div>
+        <div class="mb-3">
+            <label for="is_default" class="form-label">Mùa mặc định</label>
+            <input type="checkbox" class="form-check-input" id="is_default" name="is_default">
+            <small class="form-text text-muted">Đánh dấu nếu đây là mùa mặc định.</small>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Mô tả</label>
+            <textarea class="form-control" id="description" name="description"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Thêm</button>
+    </form>
+</div>
+{% endblock %}

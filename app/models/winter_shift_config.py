@@ -10,5 +10,9 @@ class WinterShiftConfig(db.Model):
     morning_shift_minutes = db.Column(db.Integer, nullable=False, default=0)
     afternoon_shift_minutes = db.Column(db.Integer, nullable=False, default=0)
 
-    school = db.relationship('School', backref=db.backref('winter_shift_config', uselist=False))
-    
+    # Sửa mối quan hệ để tránh xung đột backref
+    school = db.relationship(
+        'School', 
+        backref=db.backref('winter_shift_from_config', uselist=False),
+        overlaps="winter_shift,winter_shift_config,school_winter_shift,school_winter_shift_config"
+    )
