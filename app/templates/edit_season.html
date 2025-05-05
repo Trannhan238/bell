@@ -1,27 +1,21 @@
 {% extends 'layout.html' %}
 
-{% block title %}Chỉnh sửa Mùa hè{% endblock %}
+{% block title %}Chỉnh sửa Mùa đông{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Chỉnh sửa Mùa hè</h2>
+<h2 class="mb-4">Chỉnh sửa Mùa đông</h2>
 <form method="post" action="">
   <div class="mb-3">
-    <label for="summerStart" class="form-label">Ngày bắt đầu Mùa hè</label>
-    <input type="date" class="form-control" id="summerStart" name="summer_start" value="{{ season.summer_start }}" required>
+    <label for="startDate" class="form-label">Ngày bắt đầu</label>
+    <input type="date" class="form-control" id="startDate" name="start_date" value="{{ season.start_date if season else '' }}" required>
   </div>
   <div class="mb-3">
-    <label for="summerEnd" class="form-label">Ngày kết thúc Mùa hè</label>
-    <input type="date" class="form-control" id="summerEnd" name="summer_end" value="{{ season.summer_end }}" required>
+    <label for="endDate" class="form-label">Ngày kết thúc</label>
+    <input type="date" class="form-control" id="endDate" name="end_date" value="{{ season.end_date if season else '' }}" required>
   </div>
   <div class="mb-3">
-    <label for="schoolId" class="form-label">Trường</label>
-    <select class="form-select" id="schoolId" name="school_id" required>
-      {% for school in schools %}
-      <option value="{{ school.id }}" {% if school.id == season.school_id %}selected{% endif %}>
-        {{ school.name }}
-      </option>
-      {% endfor %}
-    </select>
+    <label for="shiftMinutes" class="form-label">Số phút tăng hoặc giảm</label>
+    <input type="number" class="form-control" id="shiftMinutes" name="shift_minutes" value="{{ season.shift_minutes if season else 0 }}" required>
   </div>
   <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
   <a href="{{ url_for('season.list_seasons') }}" class="btn btn-secondary">Hủy</a>

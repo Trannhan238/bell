@@ -5,8 +5,9 @@ from app.models.device import Device
 from app.models.user import User
 from app.models.schedule import Schedule
 from app.models.season_config import SeasonConfig  # Updated import to point to the correct file
+from app.models.season_config import WinterShiftConfig
 from app import db
-from datetime import date
+from datetime import date, datetime
 
 schedule_helper_bp = Blueprint("schedule_helper", __name__, url_prefix="/api/schedule-helper")
 
@@ -74,14 +75,23 @@ def get_today_schedule():
         is_summer=is_summer
     ).all()
 
-    schedules_data = []
-    for schedule in schedules:
-        schedules_data.append({
+    # Fetch winter shift configuration for the school
+    winter_shift = WinterShiftConfig.query.filter_by(school_id=user.school_id).first()
+
+    # Adjust schedules for winter shift if applicable
+    schedules_data = [
+        {
             "id": schedule.id,
-            "time_point": schedule.time_point.strftime('%H:%M') if hasattr(schedule, 'time_point') and schedule.time_point else None,
+            "time_point": apply_winter_shift(
+                schedule.time_point,
+                today,
+                winter_shift.morning_shift_minutes if schedule.bell_type == 'morning' else winter_shift.afternoon_shift_minutes
+            ).strftime('%H:%M') if schedule.time_point else None,
             "bell_type": schedule.bell_type,
             "is_summer": schedule.is_summer
-        })
+        }
+        for schedule in schedules
+    ]
 
     return jsonify(
         message="Today's schedules",
@@ -94,3 +104,59 @@ def get_today_schedule():
 @schedule_helper_bp.route("/schedule/today", methods=["GET"])
 def alias_get_today_schedule():
     return get_today_schedule()
+
+def process_schedule_with_winter_shift(school_id, base_schedule):
+    """
+    Adjusts the schedule based on winter time shift configuration.
+
+    :param school_id: ID of the school to fetch winter shift config.
+    :param base_schedule: List of base bell times (summer times).
+    :return: Adjusted schedule with winter shifts applied if applicable.
+    """
+    today = datetime.now()
+    current_month = today.month
+
+    # Fetch winter shift configuration for the school
+    winter_shift = WinterShiftConfig.query.filter_by(school_id=school_id).first()
+
+    if not winter_shift:
+        return base_schedule  # No winter shift config, return base schedule
+
+    # Check if the current date is within the winter shift range
+    is_winter = (
+        winter_shift.start_month <= current_month or current_month <= winter_shift.end_month
+    )
+
+    if not is_winter:
+        return base_schedule  # Not in winter range, return base schedule
+
+    # Adjust the schedule based on winter shift minutes
+    adjusted_schedule = []
+    for bell_time in base_schedule:
+        if bell_time['type'] == 'morning':
+            adjusted_time = bell_time['time'] + winter_shift.morning_shift_minutes
+        elif bell_time['type'] == 'afternoon':
+            adjusted_time = bell_time['time'] + winter_shift.afternoon_shift_minutes
+        else:
+            adjusted_time = bell_time['time']
+
+        adjusted_schedule.append({
+            'type': bell_time['type'],
+            'time': adjusted_time
+        })
+
+    return adjusted_schedule
+
+def apply_winter_shift(time_point, today, shift_minutes):
+    """
+    Applies winter shift to a given time point.
+
+    :param time_point: Original time point.
+    :param today: Current date.
+    :param shift_minutes: Minutes to shift.
+    :return: Adjusted time point.
+    """
+    if not time_point:
+        return None
+
+    return time_point + timedelta(minutes=shift_minutes)

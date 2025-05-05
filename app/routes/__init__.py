@@ -12,7 +12,6 @@ from .device_frontend import frontend_bp as device_frontend_bp  # Corrected impo
 from app.models.device import Device
 from app.models.schedule import Schedule
 from app.models.user import User
-from app.models.season_config import SeasonConfig  # Updated import to point to the correct file
 from app.models.holiday import Holiday
 from app.models.school import School
 from app.utils.decorators import login_required
@@ -40,7 +39,7 @@ def register_routes(app):
             'devices': Device.query.count(),
             'schedules': Schedule.query.count(),
             'users': User.query.count(),
-            'seasons': SeasonConfig.query.count(),
+            # 'seasons': SeasonConfig.query.count(),  # Removed reference to season_config
             'holidays': Holiday.query.count(),
             'schools': School.query.count(),
         }

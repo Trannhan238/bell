@@ -1,9 +1,9 @@
 {% extends 'layout.html' %}
 
-{% block title %}Thêm Mùa Hè{% endblock %}
+{% block title %}Thêm Mùa Đông{% endblock %}
 
 {% block content %}
-<h2 class="mb-4">Thêm Mùa Hè</h2>
+<h2 class="mb-4">Thêm Mùa Đông</h2>
 <form method="post" action="/seasons/add">
   <div class="mb-3">
     <label for="schoolId" class="form-label">Trường</label>
@@ -16,12 +16,20 @@
     </select>
   </div>
   <div class="mb-3">
-    <label for="summerStart" class="form-label">Ngày bắt đầu Mùa hè</label>
+    <label for="summerStart" class="form-label">Ngày bắt đầu Mùa đông</label>
     <input type="date" class="form-control" id="summerStart" name="summer_start" value="{{ current_year }}-06-01" required>
   </div>
   <div class="mb-3">
-    <label for="summerEnd" class="form-label">Ngày kết thúc Mùa hè</label>
+    <label for="summerEnd" class="form-label">Ngày kết thúc Mùa đông</label>
     <input type="date" class="form-control" id="summerEnd" name="summer_end" value="{{ current_year }}-08-30" required>
+  </div>
+  <div class="mb-3">
+    <label for="winterStart" class="form-label">Ngày bắt đầu Mùa đông</label>
+    <input type="date" class="form-control" id="winterStart" name="winter_start" value="{{ current_year }}-12-01" required>
+  </div>
+  <div class="mb-3">
+    <label for="winterEnd" class="form-label">Ngày kết thúc Mùa đông</label>
+    <input type="date" class="form-control" id="winterEnd" name="winter_end" value="{{ current_year + 1 }}-02-28" required>
   </div>
   <button type="submit" class="btn btn-primary">Thêm mới</button>
   <a href="/seasons" class="btn btn-secondary">Hủy</a>
