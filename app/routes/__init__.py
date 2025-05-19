@@ -15,6 +15,7 @@ from app.models.user import User
 from app.models.holiday import Holiday
 from app.models.school import School
 from app.utils.decorators import login_required
+import logging
 
 def register_routes(app):
     app.register_blueprint(auth_bp)  # Đăng ký auth_bp KHÔNG có url_prefix để các route như /login, /logout hoạt động ở gốc
@@ -30,8 +31,10 @@ def register_routes(app):
 
     @app.route("/")
     def index():
+        logging.info("Index route accessed")
         # Kiểm tra xem người dùng đã đăng nhập chưa (tự quản lý mà không dùng decorator)
         if 'user' not in session:
+            logging.info("User not logged in, redirecting to login")
             return redirect(url_for('auth.login'))
 
         # Nếu đã đăng nhập, hiển thị trang dashboard với thông tin stats
@@ -46,6 +49,8 @@ def register_routes(app):
 
         # Phân biệt template dựa trên vai trò của người dùng
         if session['user']['role'] == 'admin':
-            return render_template("dashboard_admin.html", stats=stats)
+            logging.info("Rendering dashboard_admin.html for admin user")
+            return render_template("pages/dashboard_admin.html", stats=stats)
         else:
-            return render_template("dashboard_school.html", stats=stats)
+            logging.info("Rendering dashboard_school.html for non-admin user")
+            return render_template("pages/dashboard_school.html", stats=stats)

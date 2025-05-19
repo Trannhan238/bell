@@ -23,8 +23,8 @@ def login():
             return redirect(url_for('index'))
         else:
             flash('Tên đăng nhập hoặc mật khẩu không đúng!', 'danger')
-            return render_template('login.html')
-    return render_template('login.html')
+            return render_template('pages/login.html')
+    return render_template('pages/login.html')
 
 @auth_bp.route('/logout')
 def logout():

@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'layouts/layout.html' %}
 {% block title %}Quản lý Trường học{% endblock %}
 {% block content %}
 <h2 class="mb-4">Danh sách Trường học</h2>
@@ -23,7 +23,9 @@
             <td>{{ school.phone }}</td>
             <td>
                 <a href="/schools/edit/{{ school.id }}" class="btn btn-sm btn-warning">Sửa</a>
-                <a href="/schools/delete/{{ school.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                <form method="POST" action="/schools/delete/{{ school.id }}" style="display: inline;" onsubmit="return confirm('Bạn có chắc muốn xóa?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                </form>
             </td>
         </tr>
         {% endfor %}

@@ -198,7 +198,7 @@ def schedules_page():
             schedules = Schedule.query.filter_by(school_id=school_id).all()
             schedules = sorted(schedules, key=lambda schedule: schedule.time_point)
 
-        return render_template('schedules_admin.html', schedules=schedules, schools=schools, selected_school_id=int(school_id) if school_id else None)
+        return render_template('pages/schedules_admin.html', schedules=schedules, schools=schools, selected_school_id=int(school_id) if school_id else None)
 
     # Nếu là school_admin hoặc school_user, sử dụng template mặc định
     elif user.get('role') in ['school_admin', 'school_user']:
@@ -210,7 +210,7 @@ def schedules_page():
         schedules = Schedule.query.filter_by(school_id=school_id).all()
         schedules = sorted(schedules, key=lambda schedule: schedule.time_point)
         schools = School.query.filter_by(id=school_id).all()
-        return render_template('schedules.html', schedules=schedules, schools=schools)
+        return render_template('pages/schedules.html', schedules=schedules, schools=schools)
 
     else:
         logging.warning(f"Unauthorized access attempt by user: {user}")
@@ -317,7 +317,7 @@ def web_edit_schedule(schedule_id):
         else:
             return redirect(url_for('schedule.schedules_page'))
 
-    return render_template('edit_schedule.html', schedule=schedule, schools=schools)
+    return render_template('pages/edit_schedule.html', schedule=schedule, schools=schools)
 
 @schedule_bp.route('/schedules/delete/<int:schedule_id>', methods=['GET', 'POST'])
 @login_required
@@ -389,7 +389,7 @@ def schedules_admin_page():
         schedules = Schedule.query.filter_by(school_id=school_id).all()
         schedules = sorted(schedules, key=lambda schedule: schedule.time_point)
 
-    return render_template('schedules_admin.html', schedules=schedules, schools=schools, selected_school_id=int(school_id) if school_id else None)
+    return render_template('pages/schedules_admin.html', schedules=schedules, schools=schools, selected_school_id=int(school_id) if school_id else None)
 
 @schedule_bp.route('/schedules/admin/add', methods=['POST'])
 @login_required

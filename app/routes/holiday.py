@@ -192,7 +192,7 @@ def delete_holiday(holiday_id):
 @admin_required
 def holidays_page():
     holidays = Holiday.query.all()
-    return render_template('holidays.html', holidays=holidays)
+    return render_template('pages/holidays.html', holidays=holidays)
 
 # POST /holidays/add
 @holiday_bp.route('/holidays/add', methods=['POST'])
@@ -273,7 +273,7 @@ def web_edit_holiday(holiday_id):
         return redirect(url_for('holiday.holidays_page'))
     
     # GET request - hiển thị form chỉnh sửa
-    return render_template('edit_holiday.html', holiday=holiday, schools=schools)
+    return render_template('pages/edit_holiday.html', holiday=holiday, schools=schools)
 
 @holiday_bp.route('/holidays/delete/<int:holiday_id>', methods=['POST', 'GET'])
 @login_required

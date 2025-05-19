@@ -21,7 +21,7 @@ def devices_page():
     # Use shared helper function to fetch devices and schools
     devices, schools = get_devices_and_schools()
 
-    return render_template('devices.html', devices=devices, schools=schools)
+    return render_template('pages/devices.html', devices=devices, schools=schools)
 
 @frontend_bp.route('/devices/edit/<int:device_id>', methods=['POST'])
 @login_required

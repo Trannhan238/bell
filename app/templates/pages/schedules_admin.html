@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'layouts/layout.html' %}
 
 {% block title %}Quản lý Lịch Chuông - Admin{% endblock %}
 
@@ -102,7 +102,9 @@
             </td>
             <td>
                 <a href="/schedules/edit/{{ items[0].id }}" class="btn btn-sm btn-warning">Sửa</a>
-                <a href="/schedules/delete/{{ items[0].id }}?school_id={{ selected_school_id }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                <form method="POST" action="/schedules/delete/{{ items[0].id }}?school_id={{ selected_school_id }}" style="display: inline;" onsubmit="return confirm('Bạn có chắc muốn xóa?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                </form>
             </td>
         </tr>
         {% endfor %}

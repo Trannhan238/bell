@@ -57,7 +57,7 @@ def get_schools():
 @admin_required
 def list_schools():
     schools = School.query.all()
-    return render_template('schools.html', schools=schools)
+    return render_template('pages/schools.html', schools=schools)
 
 @school_bp.route('/schools/add', methods=['POST'])
 @login_required
@@ -84,7 +84,7 @@ def add_school():
 @admin_required
 def edit_school_form(school_id):
     school = School.query.get_or_404(school_id)
-    return render_template('edit_school.html', school=school)
+    return render_template('pages/edit_school.html', school=school)
 
 @school_bp.route('/schools/edit/<int:school_id>', methods=['POST'])
 @login_required

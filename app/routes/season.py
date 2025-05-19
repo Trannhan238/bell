@@ -18,7 +18,7 @@ def list_seasons():
     """Hiển thị trang quản lý cấu hình mùa"""
     schools = School.query.all()  # Removed joinedload(School.seasons) as season_config no longer exists
     print("Schools:", schools)
-    return render_template('seasons.html', schools=schools)
+    return render_template('pages/seasons.html', schools=schools)
 
 @season_bp.route("/seasons/add", methods=["GET", "POST"])
 @login_required
@@ -27,7 +27,7 @@ def add_season():
     if request.method == "GET":
         school_id = request.args.get('school_id')
         schools = School.query.all()
-        return render_template('add_season.html', school_id=school_id, schools=schools)
+        return render_template('pages/add_season.html', school_id=school_id, schools=schools)
 
     # Xử lý POST để thêm mùa vụ mới
     school_id = request.form.get('school_id')
@@ -109,7 +109,7 @@ def edit_season(season_id):
             flash(f'Error updating configuration: {str(e)}', 'danger')
 
     season = None  # Set season to None as season_config table no longer exists
-    return render_template('edit_season.html', season=season, schools=schools)
+    return render_template('pages/edit_season.html', season=season, schools=schools)
 
 
 @season_bp.route("/seasons/delete/<int:season_id>", methods=["GET"])

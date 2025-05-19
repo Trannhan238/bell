@@ -36,7 +36,7 @@ def get_user_profile():
 def users_page():
     users = User.query.all()
     schools = School.query.all()
-    return render_template('users.html', users=users, schools=schools)
+    return render_template('pages/users.html', users=users, schools=schools)
 
 @user_bp.route('/users/add', methods=['POST'])
 @login_required
@@ -106,7 +106,7 @@ def web_edit_user(user_id):
         return redirect(url_for('user.users_page'))
     
     # GET request - hiển thị form chỉnh sửa
-    return render_template('edit_user.html', user=user, schools=schools)
+    return render_template('pages/edit_user.html', user=user, schools=schools)
 
 @user_bp.route('/users/delete/<int:user_id>', methods=['POST'])
 @login_required

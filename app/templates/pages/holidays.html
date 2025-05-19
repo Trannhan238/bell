@@ -1,4 +1,4 @@
-{% extends 'layout.html' %}
+{% extends 'layouts/layout.html' %}
 {% block title %}Quản lý Ngày nghỉ{% endblock %}
 {% block content %}
 <h2 class="mb-4">Danh sách Ngày nghỉ</h2>
@@ -25,7 +25,9 @@
             <td>{{ holiday.end_date.strftime('%d/%m/%Y') }}</td>
             <td>
                 <a href="/holidays/edit/{{ holiday.id }}" class="btn btn-sm btn-warning">Sửa</a>
-                <a href="/holidays/delete/{{ holiday.id }}" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc muốn xóa?')">Xóa</a>
+                <form method="POST" action="/holidays/delete/{{ holiday.id }}" style="display: inline;" onsubmit="return confirm('Bạn có chắc muốn xóa?');">
+                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                </form>
             </td>
         </tr>
         {% endfor %}
